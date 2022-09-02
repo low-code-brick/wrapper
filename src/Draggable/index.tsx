@@ -1,5 +1,4 @@
 import {
-  useMemo,
   forwardRef,
   useImperativeHandle,
   useRef,
@@ -8,6 +7,7 @@ import {
 } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import Draggabilly from 'draggabilly';
+import { createPopper } from '@popperjs/core';
 import './style.module.less';
 
 interface DraggableProps extends PlainNode {
@@ -25,8 +25,9 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   const draggieRef = useRef();
   const { container, identify } = useContext(WrapperContext);
 
-  useImperativeHandle(ref, () => draggieRef.current, []);
+  useImperativeHandle(ref, () => () => draggieRef.current, []);
 
+  // TODO: 拖动的时候显示 tooltip
   useEffect(() => {
     const draggie = new Draggabilly(`.${identify}`, {
       containment: container,
@@ -37,6 +38,11 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     return () => {
       draggie.destroy();
     };
+  }, []);
+
+  useEffect(() => {
+    const popcorn = document.querySelector('#popcorn');
+    const tooltip = document.querySelector('#tooltip');
   }, []);
 
   return <>{children}</>;
