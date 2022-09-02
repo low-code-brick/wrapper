@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "*.bak": true
+  },
+  "path-autocomplete.pathMappings": {
+    "@packages": "${folder}/packages"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}

@@ -55,6 +55,7 @@ export default defineConfig({
     alias: {
       '@': resolve('./demo'),
       '@is': resolve('./demo/utils/is'),
+      '@src': resolve('./src'),
     },
   },
   css: {
