@@ -39,6 +39,7 @@ export interface Tooltip {
   theme?: Theme;
   placement?: Placement;
   // visible?: boolean;
+  modifiers?: any[];
 }
 
 const events = [
@@ -126,7 +127,6 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   useEffect(() => {
     let popper: Popper;
     const destroy = () => {
-      console.log(111);
       popper?.destroy();
       popperRef.current = undefined;
     };
@@ -151,12 +151,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
       {
         placement,
         modifiers: [
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 8],
-            },
-          },
+          ...(typeof tooltip === 'object' ? tooltip.modifiers ?? [] : []),
         ],
       },
     );

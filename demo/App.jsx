@@ -33,7 +33,13 @@ const App = () => {
         <Wrapper
           container=".app-container"
           tooltip={{ title: '9090' }}
-          plugins={[liveLocation]}
+          plugins={[
+            liveLocation(({ x, y }) => (
+              <>
+                {x}, {y}
+              </>
+            )),
+          ]}
         >
           <Test />
         </Wrapper>
