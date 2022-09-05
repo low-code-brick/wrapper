@@ -32,7 +32,6 @@ const Wrapper = (props: WrapperProps) => {
     children,
     className,
     style,
-    // TODO: 配置
     draggable = true,
     rotate = true,
     scale = true,
@@ -40,7 +39,6 @@ const Wrapper = (props: WrapperProps) => {
     plugins,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
-  console.log(123);
   const Content = useMemo<React.FC>(
     () =>
       wrapper(

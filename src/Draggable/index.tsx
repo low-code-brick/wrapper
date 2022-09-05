@@ -35,9 +35,10 @@ enum Placement {
 }
 
 export interface Tooltip {
+  title: ReactNode;
   theme?: Theme;
   placement?: Placement;
-  title: ReactNode;
+  // visible?: boolean;
 }
 
 const events = [
@@ -56,7 +57,10 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   const { className, style, children, ...otherProps } = props;
   const consume = useContext(WrapperContext);
   const { container, identify, tooltip } = consume;
-  // const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(
+    // (tooltip && tooltip?.visible) ?? false,
+    false,
+  );
   const draggieRef = useRef();
   const popperRef = useRef<Popper>();
 
@@ -88,11 +92,22 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
   // draggabilly
   useEffect(() => {
-    const draggie = new Draggabilly(`.${identify}`, {
+    const wrapper = document.querySelector(`.${identify}`);
+    if (wrapper == null) return;
+
+    const draggie = new Draggabilly(wrapper, {
       containment: container,
       ...otherProps,
     });
 
+    // 悬浮显示
+    // TODO: 延迟
+    const mouseenter = () => setVisible(true);
+    const mouseleave = () => setVisible(false);
+    wrapper.addEventListener('mouseenter', mouseenter);
+    wrapper.addEventListener('mouseleave', mouseleave);
+
+    // 注册事件
     events.forEach((eventName) => {
       // @ts-ignore
       const event = consume[eventName];
@@ -102,6 +117,8 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     return () => {
       draggie.destroy();
       draggieRef.current = undefined;
+      wrapper.removeEventListener('mouseenter', mouseenter);
+      wrapper.removeEventListener('mouseleave', mouseleave);
     };
   }, []);
 
@@ -109,6 +126,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   useEffect(() => {
     let popper: Popper;
     const destroy = () => {
+      console.log(111);
       popper?.destroy();
       popperRef.current = undefined;
     };
@@ -144,11 +162,11 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     );
 
     return destroy;
-  }, []);
+  }, [visible]);
 
   return (
     <>
-      {tooltip && (
+      {tooltip && visible && (
         <div
           className={classNames(styles.tooltip, theme && styles[theme])}
           role="tooltip"
