@@ -1,3 +1,87 @@
+@arrowWidth: 10px;
+@bgc: #000000bf;
+
+.tooltip {
+  min-width: 30px;
+  min-height: 32px;
+  max-width: 250px;
+  display: inline-block;
+  font-weight: bold;
+  padding: 6px 8px;
+  text-align: left;
+  text-decoration: none;
+  word-wrap: break-word;
+  font-size: inherit;
+  border-radius: 2px;
+
+  &.dark {
+    background: @bgc;
+    color: #fff;
+    box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d;
+  }
+
+  &.light {}
+}
+
+.arrow,
+.arrow::before {
+  position: absolute;
+  width: @arrowWidth;
+  height: @arrowWidth;
+  background-color: inherit;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  left: 0;
+}
+
+.arrow {
+  visibility: hidden;
+  left: 0;
+}
+
+.arrow::before {
+  visibility: visible;
+  content: '';
+  transform: rotate(45deg);
+  // box-shadow: -3px 3px 7px #00000012;
+  inset: 0;
+  margin: auto;
+}
+
+.tooltip[data-popper-placement^='top']>.arrow {
+  bottom: -@arrowWidth;
+
+  &::before {
+    transform: translateY(-7px) rotate(45deg);
+  }
+}
+
+.tooltip[data-popper-placement^='bottom']>.arrow {
+  top: -@arrowWidth;
+
+  &::before {
+    transform: translateY(7px) rotate(45deg);
+  }
+}
+
+.tooltip[data-popper-placement^='left']>.arrow {
+  right: -@arrowWidth;
+  left: unset;
+
+  &::before {
+    transform: translate(-7px) rotate(45deg);
+  }
+}
+
+.tooltip[data-popper-placement^='right']>.arrow {
+  left: -@arrowWidth;
+
+  &::before {
+    transform: translate(7px) rotate(45deg);
+  }
+}
+
 :global {
   .draggale-container {
     position: absolute !important;

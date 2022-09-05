@@ -1,9 +1,16 @@
 import * as React from 'react';
 import type { ReactNode } from 'react';
+import type { Tooltip } from '@src/Draggable';
+
+export enum Theme {
+  dark = 'dark',
+  light = 'light',
+}
 
 export type WrapperType = {
   container?: ElementLike;
   identify?: string;
+  tooltip?: Tooltip | false;
 };
 
 const WrapperContext = React.createContext<WrapperType>({});
