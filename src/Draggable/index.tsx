@@ -40,13 +40,23 @@ export interface Tooltip {
   title: ReactNode;
 }
 
+const events = [
+  'dragStart',
+  'dragMove',
+  'dragEnd',
+  'pointerDown',
+  'pointerMove',
+  'pointerUp',
+];
+
 /**
  * @document https://draggabilly.desandro.com/
  */
 const Draggable = forwardRef((props: DraggableProps, ref) => {
   const { className, style, children, ...otherProps } = props;
-  const { container, identify, tooltip } = useContext(WrapperContext);
-  const [visible, setVisible] = useState(false);
+  const consume = useContext(WrapperContext);
+  const { container, identify, tooltip } = consume;
+  // const [visible, setVisible] = useState(false);
   const draggieRef = useRef();
   const popperRef = useRef<Popper>();
 
@@ -78,24 +88,17 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
   // draggabilly
   useEffect(() => {
-    const wrapper = document.querySelector(`.wrapper-0 `);
-    if (wrapper == null) {
-      console.warn(`draggabilly 初始化失败.`);
-      return;
-    }
-
     const draggie = new Draggabilly(`.${identify}`, {
       containment: container,
       ...otherProps,
     });
 
-    const parentElement = wrapper.parentElement as HTMLElement;
-    const { left: parentLeft, top: parentTop } =
-      parentElement.getBoundingClientRect();
-
-    draggie.on('dragMove', (/* event, pointer, moveVector */) => {
-      const { left, top } = wrapper.getBoundingClientRect();
-      console.log(left - parentLeft, top - parentTop);
+    console.log('xxxxx', consume);
+    events.forEach((eventName) => {
+      console.log('consume[eventName]', consume[eventName]);
+      // @ts-ignore
+      const event = consume[eventName];
+      event && draggie.on(eventName, event);
     });
 
     return () => {

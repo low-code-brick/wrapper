@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal } from 'antd';
-import Wrapper from '../src';
+import Wrapper, { liveLocation } from '../src';
 import { Text } from '@low-code-brick/bricks';
 
 const Test = () => {
@@ -33,6 +33,7 @@ const App = () => {
         <Wrapper
           container=".app-container"
           tooltip={{ title: '9090', placement: 'top' }}
+          plugins={[liveLocation]}
         >
           <Test />
         </Wrapper>

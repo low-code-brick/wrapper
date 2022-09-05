@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { Tooltip } from '@src/Draggable';
 
@@ -7,10 +7,29 @@ export enum Theme {
   light = 'light',
 }
 
+type MoveVector = {
+  x: number;
+  y: number;
+};
+
 export type WrapperType = {
   container?: ElementLike;
   identify?: string;
   tooltip?: Tooltip | false;
+  dragStart?: (event: Event, pointer: MouseEvent) => void;
+  dragMove?: (
+    event: Event,
+    pointer: MouseEvent,
+    moveVector: MoveVector,
+  ) => void;
+  dragEnd?: (event: Event, pointer: MouseEvent) => void;
+  pointerDown?: (event: Event, pointer: MouseEvent) => void;
+  pointerMove?: (
+    event: Event,
+    pointer: MouseEvent,
+    moveVector: MoveVector,
+  ) => void;
+  pointerUp?: (event: Event, pointer: MouseEvent) => void;
 };
 
 const WrapperContext = React.createContext<WrapperType>({});
@@ -20,10 +39,13 @@ export interface WrapperProviderProps extends WrapperType {
 }
 
 export const Provider: React.FC<WrapperProviderProps> = (props) => {
+  const consume = useContext(WrapperContext);
   const { children } = props;
 
   return (
-    <WrapperContext.Provider value={props}>{children}</WrapperContext.Provider>
+    <WrapperContext.Provider value={{ ...consume, ...props }}>
+      {children}
+    </WrapperContext.Provider>
   );
 };
 
