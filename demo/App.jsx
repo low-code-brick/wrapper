@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Modal } from 'antd';
 import Wrapper, { liveLocation } from '../src';
-import { Text } from '@low-code-brick/bricks';
+// import { Text } from '@low-code-brick/bricks';
 
 const Test = () => {
   return (
@@ -32,7 +32,7 @@ const App = () => {
         ========================================================================================
         <Wrapper
           container=".app-container"
-          tooltip={{ title: '9090', placement: 'top' }}
+          tooltip={{ title: '9090' }}
           plugins={[liveLocation]}
         >
           <Test />

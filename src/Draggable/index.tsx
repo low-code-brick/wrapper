@@ -93,9 +93,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
       ...otherProps,
     });
 
-    console.log('xxxxx', consume);
     events.forEach((eventName) => {
-      console.log('consume[eventName]', consume[eventName]);
       // @ts-ignore
       const event = consume[eventName];
       event && draggie.on(eventName, event);

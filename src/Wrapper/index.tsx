@@ -1,5 +1,6 @@
-import { useMemo, useRef, useEffect, ReactNode } from 'react';
-import Draggable from '../Draggable';
+import React, { useMemo, useRef, useEffect, ReactNode, memo } from 'react';
+import Draggable from '@src/Draggable';
+import Rotate from '@src/rotate';
 import { Provider, Theme } from './Context';
 import type { WrapperType } from './Context';
 import styles from './style.module.less';
@@ -17,15 +18,13 @@ let _id = 0;
 function wrapper(
   plugins: WrapperProps['plugins'] | undefined,
   children: ReactNode,
-): ReactNode {
+): React.FC {
   if (!Array.isArray(plugins)) {
-    return children;
+    return () => <>{children}</>;
   }
 
   // @ts-ignore
-  return plugins.reduce((content, hoc) => {
-    return hoc(content);
-  }, children);
+  return plugins.reduce((content, hoc) => hoc(content), children);
 }
 
 const Wrapper = (props: WrapperProps) => {
@@ -41,10 +40,10 @@ const Wrapper = (props: WrapperProps) => {
     plugins,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
-
-  return (
-    <Provider {...props} identify={identify}>
-      {wrapper(
+  console.log(123);
+  const Content = useMemo<React.FC>(
+    () =>
+      wrapper(
         plugins,
         <div
           className={classNames(
@@ -57,9 +56,16 @@ const Wrapper = (props: WrapperProps) => {
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
             {draggable && <Draggable>{children}</Draggable>}
+            {rotate && <Rotate />}
           </div>
         </div>,
-      )}
+      ),
+    [plugins, className, draggable, children],
+  );
+
+  return (
+    <Provider {...props} identify={identify}>
+      <Content />
     </Provider>
   );
 };
