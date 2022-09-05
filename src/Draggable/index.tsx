@@ -38,7 +38,6 @@ export interface Tooltip {
   title: ReactNode;
   theme?: Theme;
   placement?: Placement;
-  // visible?: boolean;
   modifiers?: any[];
 }
 
@@ -53,15 +52,13 @@ const events = [
 
 /**
  * @document https://draggabilly.desandro.com/
+ * @document https://popper.js.org/
  */
 const Draggable = forwardRef((props: DraggableProps, ref) => {
   const { className, style, children, ...otherProps } = props;
   const consume = useContext(WrapperContext);
   const { container, identify, tooltip } = consume;
-  const [visible, setVisible] = useState(
-    // (tooltip && tooltip?.visible) ?? false,
-    false,
-  );
+  const [visible, setVisible] = useState(false);
   const draggieRef = useRef();
   const popperRef = useRef<Popper>();
 
@@ -102,7 +99,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     });
 
     // 悬浮显示
-    // TODO: 延迟
+    // TODO: 延迟, 动画
     const mouseenter = () => setVisible(true);
     const mouseleave = () => setVisible(false);
     wrapper.addEventListener('mouseenter', mouseenter);
@@ -125,6 +122,8 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
   // tooltip
   useEffect(() => {
+    if (!visible) return;
+
     let popper: Popper;
     const destroy = () => {
       popper?.destroy();
@@ -134,8 +133,6 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     if (!tooltip) return destroy;
 
     if (popperRef.current) {
-      popper = popperRef.current;
-      popper.update();
       return destroy;
     }
     const popcornEle = document.querySelector(`.${identify}`);
@@ -161,13 +158,16 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
   return (
     <>
-      {tooltip && visible && (
+      {tooltip && (
         <div
           className={classNames(styles.tooltip, theme && styles[theme])}
           role="tooltip"
+          style={{
+            display: visible ? 'block' : 'none',
+          }}
         >
           <>
-            {tooltipIsReactNode ? tooltip : tooltip.title}
+            {visible && (tooltipIsReactNode ? tooltip : tooltip.title)}
             <div className={styles.arrow} data-popper-arrow></div>
           </>
         </div>
