@@ -1,15 +1,16 @@
 import React, { useMemo, ReactNode } from 'react';
 import Draggable from '@src/Draggable';
-import Rotate from '@src/rotate';
+import Rotate from '@src/Rotate';
+import Stretch from '@src/Stretch';
 import { Provider } from './Context';
 import type { WrapperType } from './Context';
 import styles from './style.module.less';
 import classNames from 'classnames';
 
-interface WrapperProps extends WrapperType, PlainNode {
+export interface WrapperProps extends WrapperType, PlainNode {
   draggable?: boolean;
   rotate?: boolean;
-  scale?: boolean;
+  stretch?: boolean;
   plugins?: ((Component: React.FC) => React.FC)[];
   absolute?: boolean;
 }
@@ -39,8 +40,7 @@ const Wrapper = (props: WrapperProps) => {
     style,
     draggable = true,
     rotate = true,
-    scale = true,
-    tooltip = false,
+    stretch = true,
     absolute = true,
     layout = {},
     plugins,
@@ -64,9 +64,11 @@ const Wrapper = (props: WrapperProps) => {
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
             {draggable && <Draggable>{children}</Draggable>}
-            {rotate && <Rotate />}
+            {layout.inner && layout.inner(props)}
           </div>
-          {layout.default && layout.default()}
+          {rotate && <Rotate />}
+          {stretch && <Stretch />}
+          {layout.default && layout.default(props)}
         </div>,
       ),
     [plugins, className, draggable, children],

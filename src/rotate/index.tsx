@@ -1,6 +1,6 @@
 const Rotate = () => {
-  console.log(222);
-  return <div>rotate</div>;
+  console.log('Rotate render');
+  return <div>Rotate</div>;
 };
 
 export default Rotate;

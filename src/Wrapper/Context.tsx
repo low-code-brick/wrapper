@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { Tooltip } from '@src/Draggable';
+import type { WrapperProps } from '@src/Wrapper';
 
 export enum Theme {
   dark = 'dark',
@@ -17,8 +18,8 @@ export interface WrapperType {
   identify?: string;
   tooltip?: Tooltip | false;
   layout?: {
-    default?: React.FC;
-    inner?: React.FC;
+    default?: React.FC<WrapperProps>;
+    inner?: React.FC<WrapperProps>;
   };
   dragStart?: (event: Event, pointer: MouseEvent) => void;
   dragMove?: (
