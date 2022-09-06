@@ -1,4 +1,10 @@
-import { useCallback, useContext, useRef, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import Context, { Provider } from '@src/Wrapper/Context';
 import { merge } from 'lodash';
 import type { ReactNode } from 'react';
@@ -17,7 +23,7 @@ const LocationText = ({ x, y }: Location) => {
 };
 
 const liveLocation = (render?: (location: Location) => ReactNode) => {
-  return (children: ReactNode) => {
+  return (Componet: React.FC) => {
     return () => {
       const consume = useContext(Context);
       const { tooltip: userTooltip, identify } = consume;
@@ -58,7 +64,7 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
 
       return (
         <Provider dragMove={dragMove} tooltip={tooltip}>
-          {children}
+          <Componet />
         </Provider>
       );
     };

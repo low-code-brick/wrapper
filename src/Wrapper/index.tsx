@@ -10,7 +10,7 @@ interface WrapperProps extends WrapperType, PlainNode {
   draggable?: boolean;
   rotate?: boolean;
   scale?: boolean;
-  plugins?: ((children: ReactNode) => void)[];
+  plugins?: ((Component: React.FC) => React.FC)[];
   absolute?: boolean;
 }
 
@@ -23,10 +23,14 @@ function wrapper(
   if (!Array.isArray(plugins)) {
     return () => <>{children}</>;
   }
+  const Component: React.FC = () => <>{children}</>;
 
   // FIXME:
   // @ts-ignore
-  return plugins.reduce((content, wrapperHoc) => wrapperHoc(content), children);
+  return plugins.reduceRight(
+    (content, wrapperHoc) => wrapperHoc(content),
+    Component,
+  );
 }
 
 const Wrapper = (props: WrapperProps) => {
