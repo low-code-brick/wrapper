@@ -1,7 +1,7 @@
-import React, { useMemo, useRef, useEffect, ReactNode, memo } from 'react';
+import React, { useMemo, ReactNode } from 'react';
 import Draggable from '@src/Draggable';
 import Rotate from '@src/rotate';
-import { Provider, Theme } from './Context';
+import { Provider } from './Context';
 import type { WrapperType } from './Context';
 import styles from './style.module.less';
 import classNames from 'classnames';
@@ -25,7 +25,6 @@ function wrapper(
   }
   const Component: React.FC = () => <>{children}</>;
 
-  // FIXME:
   // @ts-ignore
   return plugins.reduceRight(
     (content, wrapperHoc) => wrapperHoc(content),
@@ -43,6 +42,7 @@ const Wrapper = (props: WrapperProps) => {
     scale = true,
     tooltip = false,
     absolute = true,
+    layout = {},
     plugins,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
@@ -66,6 +66,7 @@ const Wrapper = (props: WrapperProps) => {
             {draggable && <Draggable>{children}</Draggable>}
             {rotate && <Rotate />}
           </div>
+          {layout.default && layout.default()}
         </div>,
       ),
     [plugins, className, draggable, children],

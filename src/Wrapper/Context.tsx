@@ -16,6 +16,10 @@ export interface WrapperType {
   container?: ElementLike;
   identify?: string;
   tooltip?: Tooltip | false;
+  layout?: {
+    default?: React.FC;
+    inner?: React.FC;
+  };
   dragStart?: (event: Event, pointer: MouseEvent) => void;
   dragMove?: (
     event: Event,
