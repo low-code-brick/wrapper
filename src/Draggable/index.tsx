@@ -12,8 +12,9 @@ import Draggabilly from 'draggabilly';
 import { createPopper } from '@popperjs/core';
 import classNames from 'classnames';
 import styles from './style.module.less';
+import { delay, merge } from 'lodash';
 import type { ReactNode } from 'react';
-import type { Instance as Popper } from '@popperjs/core';
+import type { Instance as Popper, Placement } from '@popperjs/core';
 
 interface DraggableProps extends PlainNode {
   axis?: 'x' | 'y';
@@ -27,28 +28,32 @@ enum Theme {
   light = 'light',
 }
 
-enum Placement {
-  right = 'right',
-  left = 'left',
-  bottom = 'bottom',
-  top = 'top',
-}
-
 export interface Tooltip {
   title: ReactNode;
   theme?: Theme;
   placement?: Placement;
   modifiers?: any[];
+  delay?: number;
 }
 
-const events = [
-  'dragStart',
-  'dragMove',
-  'dragEnd',
-  'pointerDown',
-  'pointerMove',
-  'pointerUp',
-];
+export enum Events {
+  dragStart = 'dragStart',
+  dragMove = 'dragMove',
+  dragEnd = 'dragEnd',
+  pointerDown = 'pointerDown',
+  pointerMove = 'pointerMove',
+  pointerUp = 'pointerUp',
+}
+
+type Options = Required<Pick<Tooltip, 'theme' | 'placement' | 'delay'>>;
+
+const events = Object.keys(Events);
+
+const defaultOptions: Options = {
+  theme: Theme.dark,
+  placement: 'right',
+  delay: 250,
+};
 
 /**
  * @document https://draggabilly.desandro.com/
@@ -61,22 +66,25 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   const [visible, setVisible] = useState(false);
   const draggieRef = useRef();
   const popperRef = useRef<Popper>();
+  const popperEleRef = useRef<HTMLDivElement>(null);
 
   const tooltipIsReactNode = useMemo(
     () => React.isValidElement(tooltip),
     [tooltip],
   );
-  const theme = useMemo<Theme>(() => {
-    if (tooltipIsReactNode) {
-      return Theme.dark;
+  const {
+    theme,
+    placement,
+    delay: delayTime,
+  } = useMemo<Options>(() => {
+    if (tooltipIsReactNode || tooltip === false) {
+      return merge({}, defaultOptions);
     }
-    return tooltip ? tooltip.theme ?? Theme.dark : Theme.dark;
-  }, [tooltip, tooltipIsReactNode]);
-  const placement = useMemo<Placement>(() => {
-    if (tooltipIsReactNode) {
-      return Placement.right;
-    }
-    return tooltip ? tooltip.placement ?? Placement.right : Placement.right;
+    return merge({}, defaultOptions, {
+      theme: tooltip?.theme,
+      placement: tooltip?.placement,
+      delay: tooltip?.delay,
+    });
   }, [tooltip, tooltipIsReactNode]);
 
   useImperativeHandle(
@@ -98,14 +106,29 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
       ...otherProps,
     });
 
-    // 悬浮显示
-    // TODO: 延迟, 动画
-    const mouseenter = () => setVisible(true);
-    const mouseleave = () => setVisible(false);
-    wrapper.addEventListener('mouseenter', mouseenter);
-    wrapper.addEventListener('mouseleave', mouseleave);
+    // 拖动显示
+    const open = () => setVisible(true);
+    const close = () => {
+      if (popperEleRef.current) {
+        const { classList, addEventListener } = popperEleRef.current;
+        classList.add(styles.fadeOut);
+        addEventListener('animationend', animationend);
+      }
+      delay(setVisible, delayTime, false);
+    };
+    const animationend = () => {
+      if (popperEleRef.current == null) return;
+      const { classList } = popperEleRef.current;
+      classList.remove(styles.fadeIn);
+      classList.remove(styles.fadeOut);
+      popperEleRef.current.removeEventListener('animationend', animationend);
+    };
+    // wrapper.addEventListener('mouseenter', mouseenter);
+    // wrapper.addEventListener('mouseleave', mouseleave);
+    draggie.on(Events.dragMove, open);
+    draggie.on(Events.dragEnd, close);
 
-    // 注册事件
+    // 注册用户事件
     events.forEach((eventName) => {
       // @ts-ignore
       const event = consume[eventName];
@@ -115,8 +138,6 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     return () => {
       draggie.destroy();
       draggieRef.current = undefined;
-      wrapper.removeEventListener('mouseenter', mouseenter);
-      wrapper.removeEventListener('mouseleave', mouseleave);
     };
   }, []);
 
@@ -160,10 +181,12 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     <>
       {tooltip && (
         <div
+          ref={popperEleRef}
           className={classNames(styles.tooltip, theme && styles[theme])}
           role="tooltip"
           style={{
             display: visible ? 'block' : 'none',
+            animationDelay: `${delayTime}ms`,
           }}
         >
           <>

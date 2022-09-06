@@ -12,7 +12,7 @@ type MoveVector = {
   y: number;
 };
 
-export type WrapperType = {
+export interface WrapperType {
   container?: ElementLike;
   identify?: string;
   tooltip?: Tooltip | false;
@@ -30,7 +30,7 @@ export type WrapperType = {
     moveVector: MoveVector,
   ) => void;
   pointerUp?: (event: Event, pointer: MouseEvent) => void;
-};
+}
 
 const WrapperContext = React.createContext<WrapperType>({});
 
