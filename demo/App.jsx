@@ -23,6 +23,7 @@ const App = () => {
         className="app-container"
         style={{
           minHeight: '60vh',
+          position: 'relative',
         }}
       >
         ========================================================================================

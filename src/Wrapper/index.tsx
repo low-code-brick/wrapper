@@ -11,6 +11,7 @@ interface WrapperProps extends WrapperType, PlainNode {
   rotate?: boolean;
   scale?: boolean;
   plugins?: ((children: ReactNode) => void)[];
+  absolute?: boolean;
 }
 
 let _id = 0;
@@ -23,8 +24,9 @@ function wrapper(
     return () => <>{children}</>;
   }
 
+  // FIXME:
   // @ts-ignore
-  return plugins.reduce((content, hoc) => hoc(content), children);
+  return plugins.reduce((content, wrapperHoc) => wrapperHoc(content), children);
 }
 
 const Wrapper = (props: WrapperProps) => {
@@ -36,6 +38,7 @@ const Wrapper = (props: WrapperProps) => {
     rotate = true,
     scale = true,
     tooltip = false,
+    absolute = true,
     plugins,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
@@ -50,7 +53,10 @@ const Wrapper = (props: WrapperProps) => {
             styles.container,
             identify,
           )}
-          style={style}
+          style={{
+            position: absolute ? 'absolute' : 'relative',
+            ...style,
+          }}
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
             {draggable && <Draggable>{children}</Draggable>}

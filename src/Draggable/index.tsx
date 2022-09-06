@@ -52,7 +52,7 @@ const events = Object.keys(Events);
 const defaultOptions: Options = {
   theme: Theme.dark,
   placement: 'right',
-  delay: 250,
+  delay: 300,
 };
 
 /**
@@ -107,24 +107,19 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     });
 
     // 拖动显示
-    const open = () => setVisible(true);
+    const open = () => {
+      setVisible(true);
+      if (popperEleRef.current == null) return;
+      const { classList } = popperEleRef.current;
+      classList.remove(styles.fadeOut);
+    };
     const close = () => {
       if (popperEleRef.current) {
-        const { classList, addEventListener } = popperEleRef.current;
+        const { classList } = popperEleRef.current;
         classList.add(styles.fadeOut);
-        addEventListener('animationend', animationend);
       }
       delay(setVisible, delayTime, false);
     };
-    const animationend = () => {
-      if (popperEleRef.current == null) return;
-      const { classList } = popperEleRef.current;
-      classList.remove(styles.fadeIn);
-      classList.remove(styles.fadeOut);
-      popperEleRef.current.removeEventListener('animationend', animationend);
-    };
-    // wrapper.addEventListener('mouseenter', mouseenter);
-    // wrapper.addEventListener('mouseleave', mouseleave);
     draggie.on(Events.dragMove, open);
     draggie.on(Events.dragEnd, close);
 
@@ -186,11 +181,11 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
           role="tooltip"
           style={{
             display: visible ? 'block' : 'none',
-            animationDelay: `${delayTime}ms`,
+            animationDuration: `${delayTime}ms`,
           }}
         >
           <>
-            {visible && (tooltipIsReactNode ? tooltip : tooltip.title)}
+            {visible && tooltipIsReactNode ? tooltip : tooltip.title}
             <div className={styles.arrow} data-popper-arrow></div>
           </>
         </div>
