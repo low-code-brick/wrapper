@@ -12,12 +12,20 @@ import { setStyle } from '@src/utils';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
 import type { Delta } from '@src/utils';
+import type { Refs } from '@src/Wrapper';
 
-const Stretch = forwardRef(() => {
+interface StretchProps extends PlainNode {
+  refs: Refs;
+}
+
+const Stretch = forwardRef((props: StretchProps) => {
+  const {
+    refs: { draggle },
+  } = props;
   const consume = useContext(WrapperContext);
   // const mcRef = useRef<InstanceType<typeof Manager>>();
   const wrapperRef = useRef<HTMLElement | null>();
-  const { identify } = consume;
+  const { identify, panMove, panStart, panEnd } = consume;
 
   useEffect(() => {
     // 获取容器
@@ -52,6 +60,8 @@ const Stretch = forwardRef(() => {
         const left = Number.parseFloat(wrapper.style.left);
         const top = Number.parseFloat(wrapper.style.top);
         position = { left, top };
+
+        draggle.get().setPopperVisible(true);
       });
 
       mc.on('panmove', (event) => {
@@ -100,13 +110,13 @@ const Stretch = forwardRef(() => {
             delta = {
               top: top + event.deltaY,
               width: width + event.deltaX,
-              height: height + event.deltaY,
+              height: height - event.deltaY,
             };
             break;
           case 'circleBottomLeft':
             delta = {
               left: left + event.deltaX,
-              width: width + event.deltaX,
+              width: width - event.deltaX,
               height: height + event.deltaY,
             };
             break;
@@ -114,6 +124,24 @@ const Stretch = forwardRef(() => {
 
         // @ts-ignore
         setStyle(wrapper, delta);
+        draggle.get().popper.update();
+      });
+
+      mc.on('panend', () => {
+        draggle.get().setPopperVisible(false);
+      });
+
+      // 自定义事件
+      const customEvents: ['panStart', 'panMove', 'panEnd'] = [
+        'panStart',
+        'panMove',
+        'panEnd',
+      ];
+      customEvents.forEach((eventName) => {
+        const event = consume[eventName];
+        if (event) {
+          mc.on(eventName.toLowerCase(), event);
+        }
       });
     });
 

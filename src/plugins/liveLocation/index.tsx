@@ -59,12 +59,9 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
           wrapper = document.querySelector(`.${identify}`) as HTMLElement;
         }
         const parentElement = wrapper.parentElement as HTMLElement;
-        const {
-          left: parentLeft,
-          top: parentTop,
-          width,
-          height,
-        } = parentElement.getBoundingClientRect();
+        const { left: parentLeft, top: parentTop } =
+          parentElement.getBoundingClientRect();
+        const { width, height } = wrapper.getBoundingClientRect();
         const { left, top } = wrapper.getBoundingClientRect();
         setLocation({
           x: left - parentLeft,
@@ -75,7 +72,7 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
       }, []);
 
       return (
-        <Provider dragMove={dragMove} tooltip={tooltip}>
+        <Provider dragMove={dragMove} panMove={dragMove} tooltip={tooltip}>
           <Componet />
         </Provider>
       );

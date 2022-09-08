@@ -6,6 +6,7 @@ import React, {
   useContext,
   useMemo,
   useState,
+  useCallback,
 } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import Draggabilly from 'draggabilly';
@@ -15,12 +16,14 @@ import styles from './style.module.less';
 import { delay, merge } from 'lodash';
 import type { ReactNode } from 'react';
 import type { Instance as Popper, Placement } from '@popperjs/core';
+import type { Refs } from '@src/Wrapper';
 
 interface DraggableProps extends PlainNode {
   axis?: 'x' | 'y';
   containment?: ElementLike | boolean;
   grid?: [number, number];
   handle?: ElementLike | ElementLike[];
+  refs: Refs;
 }
 
 enum Theme {
@@ -63,10 +66,19 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   const { className, style, children, ...otherProps } = props;
   const consume = useContext(WrapperContext);
   const { container, identify, tooltip } = consume;
-  const [visible, setVisible] = useState(false);
+  const [visible, _setVisible] = useState(false);
   const draggieRef = useRef();
   const popperRef = useRef<Popper>();
   const popperEleRef = useRef<HTMLDivElement>(null);
+
+  const setVisible = useCallback((value: boolean) => {
+    _setVisible(value);
+    if (value) {
+      if (popperEleRef.current == null) return;
+      const { classList } = popperEleRef.current;
+      classList.remove(styles.fadeOut);
+    }
+  }, []);
 
   const tooltipIsReactNode = useMemo(
     () => React.isValidElement(tooltip),
@@ -92,6 +104,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     () => () => ({
       draggie: draggieRef.current,
       popper: popperRef.current,
+      setPopperVisible: setVisible,
     }),
     [],
   );
@@ -110,9 +123,6 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     // 拖动显示
     const open = () => {
       setVisible(true);
-      if (popperEleRef.current == null) return;
-      const { classList } = popperEleRef.current;
-      classList.remove(styles.fadeOut);
     };
     const close = () => {
       if (popperEleRef.current) {

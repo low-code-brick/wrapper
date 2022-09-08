@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { Tooltip } from '@src/Draggable';
 import type { WrapperProps } from '@src/Wrapper';
+import type { HammerInput } from 'hammerjs';
 
 export enum Theme {
   dark = 'dark',
@@ -35,6 +36,9 @@ export interface WrapperType {
     moveVector: MoveVector,
   ) => void;
   pointerUp?: (event: Event, pointer: MouseEvent) => void;
+  panStart?: (event: HammerInput) => void;
+  panMove?: (event: HammerInput) => void;
+  panEnd?: (event: HammerInput) => void;
 }
 
 const WrapperContext = React.createContext<WrapperType>({});
