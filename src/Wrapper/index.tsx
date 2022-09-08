@@ -94,13 +94,14 @@ const Wrapper = (props: WrapperProps) => {
           )}
           style={{
             position: absolute ? 'absolute' : 'relative',
+            // TODO: 从jsonSchema中获取默认的高度宽度
             ...style,
           }}
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
-            {draggable && <Draggable ref={draggleRef}>{children}</Draggable>}
             {layout.inner && layout.inner(props)}
           </div>
+          {draggable && <Draggable ref={draggleRef}>{children}</Draggable>}
           {rotate && <Rotate ref={rotateRef} />}
           {stretch && <Stretch ref={stretchRef} />}
           {layout.default && layout.default(props)}

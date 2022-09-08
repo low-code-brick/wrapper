@@ -1,16 +1,134 @@
-import { useContext, useEffect, forwardRef } from 'react';
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  forwardRef,
+} from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import classNames from 'classnames';
+import { Pan, Manager } from 'hammerjs';
+import { debounce } from 'lodash';
 import styles from './style.module.less';
+
+type Delta = { height?: number; width?: number; left?: number; top?: number };
+
+function setStyle(wrapper: HTMLElement, delta: Delta) {
+  let prop: keyof Delta;
+  for (prop in delta) {
+    const value = delta[prop] as number | string;
+    wrapper.style[prop] = typeof value === 'string' ? value : `${value}px`;
+  }
+}
 
 const Stretch = forwardRef(() => {
   const consume = useContext(WrapperContext);
+  // const mcRef = useRef<InstanceType<typeof Manager>>();
+  const wrapperRef = useRef<HTMLElement | null>();
   const { identify } = consume;
 
   useEffect(() => {
-    const wrapper = document.querySelector(`.${identify}`);
+    // 获取容器
+    const wrapper = (wrapperRef.current = document.querySelector(
+      `.${identify}`,
+    ) as HTMLElement);
     if (wrapper == null) return;
-    return () => {};
+
+    // 拉伸事件
+    const managers: InstanceType<typeof Manager>[] = [];
+    [
+      'lineRight',
+      'lineBottom',
+      'lineLeft',
+      'lineTop',
+      'circleTopLeft',
+      'circleBottomRight',
+      'circleTopRight',
+      'circleBottomLeft',
+    ].forEach((direction) => {
+      const line = document.querySelector(
+        `.${styles[direction]}`,
+      ) as HTMLElement;
+      const mc = new Manager(line);
+      managers.push(mc);
+      mc.add(new Pan());
+
+      let rect: DOMRect;
+      let position: { left: number; top: number };
+      mc.on('panstart', () => {
+        rect = wrapper.getBoundingClientRect();
+        const left = Number.parseFloat(wrapper.style.left);
+        const top = Number.parseFloat(wrapper.style.top);
+        position = { left, top };
+      });
+
+      mc.on('panmove', (event) => {
+        const { height, width } = rect;
+        const { left, top } = position;
+
+        let delta: Delta;
+        switch (direction) {
+          case 'lineBottom':
+            delta = {
+              height: height + event.deltaY,
+            };
+            break;
+          case 'lineRight':
+            delta = {
+              width: width + event.deltaX,
+            };
+            break;
+          case 'lineLeft':
+            delta = {
+              width: width - event.deltaX,
+              left: left + event.deltaX,
+            };
+            break;
+          case 'lineTop':
+            delta = {
+              height: height - event.deltaY,
+              top: top + event.deltaY,
+            };
+            break;
+          case 'circleTopLeft':
+            delta = {
+              width: width - event.deltaX,
+              left: left + event.deltaX,
+              height: height - event.deltaY,
+              top: top + event.deltaY,
+            };
+            break;
+          case 'circleBottomRight':
+            delta = {
+              width: width + event.deltaX,
+              height: height + event.deltaY,
+            };
+            break;
+          case 'circleTopRight':
+            delta = {
+              top: top + event.deltaY,
+              width: width + event.deltaX,
+              height: height + event.deltaY,
+            };
+            break;
+          case 'circleBottomLeft':
+            delta = {
+              left: left + event.deltaX,
+              width: width + event.deltaX,
+              height: height + event.deltaY,
+            };
+            break;
+        }
+
+        // @ts-ignore
+        setStyle(wrapper, delta);
+      });
+    });
+
+    return () => {
+      managers.forEach((o) => o.destroy());
+    };
   }, []);
 
   return (

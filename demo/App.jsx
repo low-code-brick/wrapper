@@ -8,7 +8,8 @@ const Test = () => {
     <div
       style={{
         height: `100px`,
-        maxWidth: `300px`,
+        // maxWidth: `300px`,
+        display: 'inline-block',
       }}
     >
       这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本这是一个文本
