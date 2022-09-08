@@ -1,11 +1,12 @@
-import React, { useMemo, ReactNode, useRef } from 'react';
+import React, { useMemo, ReactNode, useRef, useEffect } from 'react';
 import Draggable from '@src/Draggable';
 import Rotate from '@src/Rotate';
 import Stretch from '@src/Stretch';
 import { Provider } from './Context';
-import type { WrapperType } from './Context';
 import styles from './style.module.less';
 import classNames from 'classnames';
+import { setStyle } from '@src/utils';
+import type { WrapperType } from './Context';
 
 type LibInstances = {
   get: () => any;
@@ -22,6 +23,8 @@ export interface WrapperProps extends WrapperType, PlainNode {
   stretch?: boolean;
   plugins?: ((Component: React.FC, refs: Refs) => React.FC)[];
   absolute?: boolean;
+  defaultWidth?: number | string;
+  defaultHeight?: number | string;
 }
 
 let _id = 0;
@@ -54,6 +57,8 @@ const Wrapper = (props: WrapperProps) => {
     absolute = true,
     layout = {},
     plugins,
+    defaultHeight,
+    defaultWidth,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
   const draggleRef = useRef<() => any>();
@@ -99,9 +104,10 @@ const Wrapper = (props: WrapperProps) => {
           }}
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
+            {children}
             {layout.inner && layout.inner(props)}
           </div>
-          {draggable && <Draggable ref={draggleRef}>{children}</Draggable>}
+          {draggable && <Draggable ref={draggleRef} />}
           {rotate && <Rotate ref={rotateRef} />}
           {stretch && <Stretch ref={stretchRef} />}
           {layout.default && layout.default(props)}
@@ -109,6 +115,23 @@ const Wrapper = (props: WrapperProps) => {
       ),
     [plugins, className, draggable, children],
   );
+
+  // 初始高度, 宽度
+  // TODO: left, top
+  useEffect(() => {
+    const wrapper = document.querySelector(`.${identify}`) as HTMLElement;
+    if (wrapper == null) return;
+    if (defaultHeight) {
+      setStyle(wrapper, {
+        height: defaultHeight,
+      });
+    }
+    if (defaultWidth) {
+      setStyle(wrapper, {
+        width: defaultWidth,
+      });
+    }
+  }, [defaultHeight, defaultWidth]);
 
   return (
     <Provider {...props} identify={identify}>

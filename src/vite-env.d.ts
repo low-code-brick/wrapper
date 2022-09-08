@@ -8,5 +8,5 @@ declare type ElementLike = string | HTMLElement;
 declare type PlainNode = {
   className?: string;
   style?: React.CSSProperties;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };

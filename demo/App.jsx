@@ -7,7 +7,7 @@ const Test = () => {
   return (
     <div
       style={{
-        height: `100px`,
+        // height: `100px`,
         // maxWidth: `300px`,
         display: 'inline-block',
       }}
@@ -35,17 +35,15 @@ const App = () => {
         <Wrapper
           container=".app-container"
           tooltip={{ title: '9090' }}
+          defaultHeight={100}
+          defaultWidth={300}
           plugins={[
-            liveLocation(({ x, y }) => (
-              <>
-                {x}, {y}
-              </>
-            )),
-            liveLocation(({ x, y }) => (
-              <>
-                自定义文本: {x}, {y}
-              </>
-            )),
+            liveLocation(),
+            // liveLocation(({ x, y }) => (
+            //   <>
+            //     自定义文本: {x}, {y}
+            //   </>
+            // )),
           ]}
         >
           <Test />

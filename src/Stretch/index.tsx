@@ -8,19 +8,10 @@ import {
 } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import classNames from 'classnames';
+import { setStyle } from '@src/utils';
 import { Pan, Manager } from 'hammerjs';
-import { debounce } from 'lodash';
 import styles from './style.module.less';
-
-type Delta = { height?: number; width?: number; left?: number; top?: number };
-
-function setStyle(wrapper: HTMLElement, delta: Delta) {
-  let prop: keyof Delta;
-  for (prop in delta) {
-    const value = delta[prop] as number | string;
-    wrapper.style[prop] = typeof value === 'string' ? value : `${value}px`;
-  }
-}
+import type { Delta } from '@src/utils';
 
 const Stretch = forwardRef(() => {
   const consume = useContext(WrapperContext);

@@ -11,25 +11,30 @@ import type { ReactNode } from 'react';
 import type { WrapperType } from '@src/Wrapper/Context';
 import type { Refs } from '@src/Wrapper';
 
-type Location = { x: number; y: number };
+type Location = { x: number; y: number; width: number; height: number };
 
-const LocationText = ({ x, y }: Location) => {
+const LocationText = ({ x, y, width, height }: Location) => {
   return (
     <>
-      x: {x}
+      X: {x}&nbsp;&nbsp;Y: {y}
       <br />
-      y: {y}
+      W: {width}&nbsp;&nbsp;H: {height}
     </>
   );
 };
 
 const liveLocation = (render?: (location: Location) => ReactNode) => {
-  return (Componet: React.FC, refs: Refs) => {
+  return (Componet: React.FC /* , refs: Refs */) => {
     return () => {
       const consume = useContext(Context);
       const { tooltip: userTooltip, identify } = consume;
       const wrapperEleRef = useRef();
-      const [location, setLocation] = useState({ x: 0, y: 0 });
+      const [location, setLocation] = useState<Location>({
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      });
       const tooltip: WrapperType['tooltip'] = useMemo(() => {
         return merge(
           {
@@ -54,12 +59,18 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
           wrapper = document.querySelector(`.${identify}`) as HTMLElement;
         }
         const parentElement = wrapper.parentElement as HTMLElement;
-        const { left: parentLeft, top: parentTop } =
-          parentElement.getBoundingClientRect();
+        const {
+          left: parentLeft,
+          top: parentTop,
+          width,
+          height,
+        } = parentElement.getBoundingClientRect();
         const { left, top } = wrapper.getBoundingClientRect();
         setLocation({
           x: left - parentLeft,
           y: top - parentTop,
+          width,
+          height,
         });
       }, []);
 

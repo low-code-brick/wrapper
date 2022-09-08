@@ -166,7 +166,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
           {
             name: 'offset',
             options: {
-              offset: [0, 5],
+              offset: [0, 7],
             },
           },
           ...(typeof tooltip === 'object' ? tooltip.modifiers ?? [] : []),
