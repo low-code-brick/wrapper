@@ -1,10 +1,9 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, forwardRef } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
-import { createSVGElement } from '@src/utils';
 import classNames from 'classnames';
 import styles from './style.module.less';
 
-const Stretch = () => {
+const Stretch = forwardRef(() => {
   const consume = useContext(WrapperContext);
   const { identify } = consume;
 
@@ -34,6 +33,6 @@ const Stretch = () => {
       <div className={classNames(styles.circle, styles.circleBottomRight)} />
     </>
   );
-};
+});
 
 export default Stretch;

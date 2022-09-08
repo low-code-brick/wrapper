@@ -4,11 +4,13 @@ import React, {
   useRef,
   useState,
   useMemo,
+  useEffect,
 } from 'react';
 import Context, { Provider } from '@src/Wrapper/Context';
 import { merge } from 'lodash';
 import type { ReactNode } from 'react';
 import type { WrapperType } from '@src/Wrapper/Context';
+import type { Refs } from '@src/Wrapper';
 
 type Location = { x: number; y: number };
 
@@ -23,7 +25,7 @@ const LocationText = ({ x, y }: Location) => {
 };
 
 const liveLocation = (render?: (location: Location) => ReactNode) => {
-  return (Componet: React.FC) => {
+  return (Componet: React.FC, refs: Refs) => {
     return () => {
       const consume = useContext(Context);
       const { tooltip: userTooltip, identify } = consume;
@@ -60,6 +62,10 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
           x: left - parentLeft,
           y: top - parentTop,
         });
+      }, []);
+
+      useEffect(() => {
+        console.log(refs.draggle.get());
       }, []);
 
       return (

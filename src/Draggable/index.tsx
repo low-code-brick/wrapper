@@ -101,11 +101,11 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     const wrapper = document.querySelector(`.${identify}`);
     if (wrapper == null) return;
 
-    const draggie = new Draggabilly(wrapper, {
+    const draggie = (draggieRef.current = new Draggabilly(wrapper, {
       containment: container,
       handle: `.${identify} .wrapper-inner`,
       ...otherProps,
-    });
+    }));
 
     // 拖动显示
     const open = () => {
@@ -139,15 +139,13 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
   // tooltip
   useEffect(() => {
-    if (!visible) return;
+    if (!tooltip) return;
 
     let popper: Popper;
     const destroy = () => {
       popper?.destroy();
       popperRef.current = undefined;
     };
-
-    if (!tooltip) return destroy;
 
     if (popperRef.current) {
       return destroy;
@@ -177,6 +175,10 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     );
 
     return destroy;
+  }, []);
+
+  useEffect(() => {
+    popperRef.current && popperRef.current.update();
   }, [visible]);
 
   return (

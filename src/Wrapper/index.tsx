@@ -1,4 +1,4 @@
-import React, { useMemo, ReactNode } from 'react';
+import React, { useMemo, ReactNode, useRef } from 'react';
 import Draggable from '@src/Draggable';
 import Rotate from '@src/Rotate';
 import Stretch from '@src/Stretch';
@@ -7,11 +7,20 @@ import type { WrapperType } from './Context';
 import styles from './style.module.less';
 import classNames from 'classnames';
 
+type LibInstances = {
+  get: () => any;
+};
+
+export type Refs = {
+  draggle: LibInstances;
+  rotate: LibInstances;
+  stretch: LibInstances;
+};
 export interface WrapperProps extends WrapperType, PlainNode {
   draggable?: boolean;
   rotate?: boolean;
   stretch?: boolean;
-  plugins?: ((Component: React.FC) => React.FC)[];
+  plugins?: ((Component: React.FC, refs: Refs) => React.FC)[];
   absolute?: boolean;
 }
 
@@ -19,6 +28,7 @@ let _id = 0;
 
 function wrapper(
   plugins: WrapperProps['plugins'] | undefined,
+  refs: Refs,
   children: ReactNode,
 ): React.FC {
   if (!Array.isArray(plugins)) {
@@ -28,7 +38,7 @@ function wrapper(
 
   // @ts-ignore
   return plugins.reduceRight(
-    (content, wrapperHoc) => wrapperHoc(content),
+    (content, wrapperHoc) => wrapperHoc(content, refs),
     Component,
   );
 }
@@ -46,10 +56,35 @@ const Wrapper = (props: WrapperProps) => {
     plugins,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
+  const draggleRef = useRef<() => any>();
+  const rotateRef = useRef<() => any>();
+  const stretchRef = useRef<() => any>();
+  const refs = useMemo(
+    () => ({
+      draggle: {
+        get() {
+          return draggleRef.current && draggleRef.current();
+        },
+      },
+      rotate: {
+        get() {
+          return rotateRef.current && rotateRef.current();
+        },
+      },
+      stretch: {
+        get() {
+          return stretchRef.current && stretchRef.current();
+        },
+      },
+    }),
+    [],
+  );
+
   const Content = useMemo<React.FC>(
     () =>
       wrapper(
         plugins,
+        refs,
         <div
           className={classNames(
             className,
@@ -63,11 +98,11 @@ const Wrapper = (props: WrapperProps) => {
           }}
         >
           <div className={classNames(`wrapper-inner`, styles.inner)}>
-            {draggable && <Draggable>{children}</Draggable>}
+            {draggable && <Draggable ref={draggleRef}>{children}</Draggable>}
             {layout.inner && layout.inner(props)}
           </div>
-          {rotate && <Rotate />}
-          {stretch && <Stretch />}
+          {rotate && <Rotate ref={rotateRef} />}
+          {stretch && <Stretch ref={stretchRef} />}
           {layout.default && layout.default(props)}
         </div>,
       ),
