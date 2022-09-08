@@ -103,6 +103,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
 
     const draggie = new Draggabilly(wrapper, {
       containment: container,
+      handle: `.${identify} .wrapper-inner`,
       ...otherProps,
     });
 
@@ -164,6 +165,12 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
       {
         placement,
         modifiers: [
+          {
+            name: 'offset',
+            options: {
+              offset: [0, 5],
+            },
+          },
           ...(typeof tooltip === 'object' ? tooltip.modifiers ?? [] : []),
         ],
       },

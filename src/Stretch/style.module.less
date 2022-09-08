@@ -1,0 +1,112 @@
+@circleRadiu: 10px;
+@halfNegative: calc(-@circleRadiu / 2);
+@half: calc(@circleRadiu / 2);
+@lineWidth: @half;
+@lineMinute: calc(@circleRadiu / 2 - 1px);
+@lineMinuteNeg: calc(-@circleRadiu / 2 + 1px);
+@color: #1261ff;
+
+.line {
+  height: @lineWidth;
+  // background-color: blue;
+  position: absolute;
+  z-index: 2;
+  user-select: none;
+}
+
+.lineTop,
+.lineBottom {
+  width: 100%;
+  // padding: 0 1px;
+  cursor: ns-resize;
+}
+
+.lineLeft,
+.lineRight {
+  width: @lineWidth;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+.lineTop {
+  top: @lineMinuteNeg;
+  left: 0;
+  border-bottom: 1px solid @color;
+}
+
+.lineRight {
+  top: 0;
+  right: @lineMinuteNeg;
+  border-left: 1px solid @color;
+}
+
+.lineBottom {
+  bottom: @lineMinuteNeg;
+  left: 0;
+  border-top: 1px solid @color;
+}
+
+.lineLeft {
+  left: @lineMinuteNeg;
+  top: 0;
+  border-right: 1px solid @color;
+}
+
+.circle {
+  width: @circleRadiu;
+  height: @circleRadiu;
+  background-color: #fff;
+  border: 1px solid @color;
+  border-radius: @circleRadiu;
+  z-index: 4;
+  position: absolute;
+  user-select: none;
+}
+
+.circleTopLeft {
+  left: @halfNegative;
+  top: @halfNegative;
+  cursor: nwse-resize;
+}
+
+.circleTopCenter {
+  top: -1px;
+  left: 50%;
+  margin-left: @halfNegative;
+}
+
+.circleTopRight {
+  top: @halfNegative;
+  right: @halfNegative;
+  cursor: nesw-resize;
+}
+
+.circleBottomLeft {
+  bottom: @halfNegative;
+  left: @halfNegative;
+  cursor: nesw-resize;
+}
+
+.circleBottomCenter {
+  bottom: -1px;
+  left: 50%;
+  margin-left: @halfNegative;
+}
+
+.circleBottomRight {
+  bottom: @halfNegative;
+  right: @halfNegative;
+  cursor: nwse-resize;
+}
+
+.circleLeftCenter {
+  right: @halfNegative;
+  top: 50%;
+  margin-top: @halfNegative;
+}
+
+.circleRightCenter {
+  left: @halfNegative;
+  top: 50%;
+  margin-top: @halfNegative;
+}
