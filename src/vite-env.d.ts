@@ -10,3 +10,5 @@ declare type PlainNode = {
   style?: React.CSSProperties;
   children?: React.ReactNode;
 };
+
+// declare type TupleToUnion<T extends any[]> = T extends [infer element, ...infer rest] ? element | TupleToUnion<rest> : never

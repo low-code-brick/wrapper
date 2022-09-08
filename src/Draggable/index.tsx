@@ -72,11 +72,14 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
   const popperEleRef = useRef<HTMLDivElement>(null);
 
   const setVisible = useCallback((value: boolean) => {
-    _setVisible(value);
+    if (popperEleRef.current == null) return;
+    const { classList } = popperEleRef.current;
     if (value) {
-      if (popperEleRef.current == null) return;
-      const { classList } = popperEleRef.current;
+      _setVisible(true);
       classList.remove(styles.fadeOut);
+    } else {
+      delay(_setVisible, delayTime, false);
+      classList.add(styles.fadeOut);
     }
   }, []);
 
@@ -125,11 +128,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
       setVisible(true);
     };
     const close = () => {
-      if (popperEleRef.current) {
-        const { classList } = popperEleRef.current;
-        classList.add(styles.fadeOut);
-      }
-      delay(setVisible, delayTime, false);
+      setVisible(false);
     };
     draggie.on(Events.dragMove, open);
     draggie.on(Events.dragEnd, close);

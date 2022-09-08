@@ -18,14 +18,13 @@ interface StretchProps extends PlainNode {
   refs: Refs;
 }
 
-const Stretch = forwardRef((props: StretchProps) => {
+const Stretch = forwardRef((props: StretchProps, ref) => {
   const {
     refs: { draggle },
   } = props;
   const consume = useContext(WrapperContext);
-  // const mcRef = useRef<InstanceType<typeof Manager>>();
   const wrapperRef = useRef<HTMLElement | null>();
-  const { identify, panMove, panStart, panEnd } = consume;
+  const { identify } = consume;
 
   useEffect(() => {
     // 获取容器
@@ -132,12 +131,8 @@ const Stretch = forwardRef((props: StretchProps) => {
       });
 
       // 自定义事件
-      const customEvents: ['panStart', 'panMove', 'panEnd'] = [
-        'panStart',
-        'panMove',
-        'panEnd',
-      ];
-      customEvents.forEach((eventName) => {
+      ['panStart', 'panMove', 'panEnd'].forEach((eventName) => {
+        // @ts-ignore
         const event = consume[eventName];
         if (event) {
           mc.on(eventName.toLowerCase(), event);
