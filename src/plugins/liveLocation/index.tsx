@@ -4,7 +4,6 @@ import React, {
   useRef,
   useState,
   useMemo,
-  useEffect,
 } from 'react';
 import Context, { Provider } from '@src/Wrapper/Context';
 import { merge } from 'lodash';
@@ -62,10 +61,6 @@ const liveLocation = (render?: (location: Location) => ReactNode) => {
           x: left - parentLeft,
           y: top - parentTop,
         });
-      }, []);
-
-      useEffect(() => {
-        console.log(refs.draggle.get());
       }, []);
 
       return (
