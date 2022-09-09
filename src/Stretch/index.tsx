@@ -114,6 +114,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             break;
         }
 
+        // TODO: 优化动画, 操作DOM不该在这里
         // @ts-ignore
         setStyle(wrapper, delta);
         draggle.get().popper?.update();

@@ -7,8 +7,6 @@ const Test = () => {
   return (
     <div
       style={{
-        // height: `100px`,
-        // maxWidth: `300px`,
         display: 'inline-block',
       }}
     >
@@ -19,12 +17,11 @@ const Test = () => {
 
 const App = () => {
   return (
-    <Modal visible title="Wrapper Demo" footer={null} width="1100px">
+    <Modal visible title="Wrapper Demo" footer={null} width="95vw">
       <div
         className="app-container"
         style={{
           minHeight: '85vh',
-          minWidth: '90vw',
           position: 'relative',
         }}
       >
@@ -34,14 +31,7 @@ const App = () => {
             width: 300,
             height: 100,
           }}
-          plugins={[
-            liveLocation(),
-            // liveLocation(({ x, y }) => (
-            //   <>
-            //     自定义文本: {x}, {y}
-            //   </>
-            // )),
-          ]}
+          plugins={[liveLocation()]}
         >
           <Test />
         </Wrapper>
@@ -52,13 +42,13 @@ const App = () => {
             height: 100,
             left: 400,
           }}
-          // plugins={[
-          //   liveLocation(({ x, y }) => (
-          //     <>
-          //       自定义文本: {x}, {y}
-          //     </>
-          //   )),
-          // ]}
+          plugins={[
+            liveLocation(({ x, y }) => (
+              <>
+                自定义文本: {x}, {y}
+              </>
+            )),
+          ]}
         >
           <Test />
         </Wrapper>

@@ -63,7 +63,8 @@ const Wrapper = (props: WrapperProps) => {
     plugins,
     defaultStyle,
   } = props;
-  const identify = useMemo(() => `wrapper-${_id++}`, []);
+  const id = useMemo(() => _id++, []);
+  const identify = useMemo(() => `wrapper-${id}`, []);
   const draggleRef = useRef<() => any>();
   const rotateRef = useRef<() => any>();
   const stretchRef = useRef<() => any>();
@@ -88,23 +89,13 @@ const Wrapper = (props: WrapperProps) => {
     [],
   );
 
+  // TODO: 把 Popper 抽离出去, tooltip => popper
   const Content = useMemo<React.FC>(
     () =>
       wrapper(
         plugins,
         refs,
-        <div
-          className={classNames(
-            className,
-            `wrapper-container`,
-            styles.container,
-            identify,
-          )}
-          style={{
-            position: absolute ? 'absolute' : 'relative',
-            ...style,
-          }}
-        >
+        <>
           <div className={classNames(`wrapper-inner`, styles.inner)}>
             {children}
             {layout.inner && layout.inner(props)}
@@ -113,7 +104,7 @@ const Wrapper = (props: WrapperProps) => {
           {rotate && <Rotate ref={rotateRef} refs={refs} />}
           {stretch && <Stretch ref={stretchRef} refs={refs} />}
           {layout.default && layout.default(props)}
-        </div>,
+        </>,
       ),
     [plugins, className, draggable, children],
   );
@@ -128,7 +119,21 @@ const Wrapper = (props: WrapperProps) => {
 
   return (
     <Provider {...props} identify={identify}>
-      <Content />
+      <div
+        className={classNames(
+          className,
+          `wrapper-container`,
+          styles.container,
+          identify,
+        )}
+        style={{
+          position: absolute ? 'absolute' : 'relative',
+          // zIndex: id,
+          ...style,
+        }}
+      >
+        <Content />
+      </div>
     </Provider>
   );
 };
