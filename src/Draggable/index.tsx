@@ -204,7 +204,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
         >
           <>
             {visible && tooltipIsReactNode ? tooltip : tooltip.title}
-            <div className={styles.arrow} data-popper-arrow></div>
+            {/* <div className={styles.arrow} data-popper-arrow></div> */}
           </>
         </div>
       )}

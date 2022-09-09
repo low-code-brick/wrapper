@@ -30,30 +30,29 @@
   }
 }
 
-.arrow,
-.arrow::before {
-  position: absolute;
-  width: @arrowWidth;
-  height: @arrowWidth;
-  background-color: inherit;
-  display: block;
-  overflow: hidden;
-  pointer-events: none;
-  left: 0;
-}
+// .arrow,// .arrow::before {
+//   position: absolute;
+//   width: @arrowWidth;
+//   height: @arrowWidth;
+//   background-color: inherit;
+//   display: block;
+//   overflow: hidden;
+//   pointer-events: none;
+//   left: 0;
+// }
 
-.arrow {
-  visibility: hidden;
-}
+// .arrow {
+//   visibility: hidden;
+// }
 
-.arrow::before {
-  visibility: visible;
-  content: '';
-  transform: rotate(45deg);
-  // box-shadow: -3px 3px 7px #00000012;
-  inset: 0;
-  margin: auto;
-}
+// .arrow::before {
+//   visibility: visible;
+//   content: '';
+//   transform: rotate(45deg);
+//   // box-shadow: -3px 3px 7px #00000012;
+//   inset: 0;
+//   margin: auto;
+// }
 
 .tooltip[data-popper-placement^='top-end']>.arrow {
   left: unset !important;

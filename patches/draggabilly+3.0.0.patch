@@ -1,7 +1,16 @@
 diff --git a/node_modules/draggabilly/draggabilly.js b/node_modules/draggabilly/draggabilly.js
-index 9f2dd71..3980a07 100644
+index 9f2dd71..c32ccd9 100644
 --- a/node_modules/draggabilly/draggabilly.js
 +++ b/node_modules/draggabilly/draggabilly.js
+@@ -321,7 +321,7 @@ proto.handleDragEnd = function() {
+   if ( !this.isEnabled ) return;
+ 
+   // use top left position when complete
+-  this.element.style.transform = '';
++  // this.element.style.transform = '';
+   this.setLeftTop();
+   this.element.classList.remove('is-dragging');
+ };
 @@ -332,7 +332,8 @@ proto.animate = function() {
    // only render and animate if dragging
    if ( !this.isDragging ) return;

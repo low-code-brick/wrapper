@@ -55,10 +55,11 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
 
         draggle.get().setPopperVisible(true);
       });
-
-      mc.on('panmove', (event) => {
+      mc.on('panmove', (event: HammerInput) => {
         const { height, width } = rect;
         const { left, top } = position;
+        const { srcEvent } = event;
+        // console.log(event, event.direction, event.angle);
 
         let delta: Delta;
         switch (direction) {
@@ -115,6 +116,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         }
 
         // TODO: 优化动画, 操作DOM不该在这里
+        // TODO: 中心点的坐标计算
         // @ts-ignore
         setStyle(wrapper, delta);
         draggle.get().popper?.update();
