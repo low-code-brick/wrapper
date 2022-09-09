@@ -23,18 +23,13 @@ const App = () => {
       <div
         className="app-container"
         style={{
-          minHeight: '60vh',
+          minHeight: '85vh',
+          minWidth: '90vw',
           position: 'relative',
         }}
       >
-        ========================================================================================
-        <br />
-        ========================================================================================
-        <br />
-        ========================================================================================
         <Wrapper
           container=".app-container"
-          tooltip={{ title: '9090' }}
           defaultStyle={{
             width: 300,
             height: 100,
@@ -47,6 +42,23 @@ const App = () => {
             //   </>
             // )),
           ]}
+        >
+          <Test />
+        </Wrapper>
+        <Wrapper
+          container=".app-container"
+          defaultStyle={{
+            width: 300,
+            height: 100,
+            left: 400,
+          }}
+          // plugins={[
+          //   liveLocation(({ x, y }) => (
+          //     <>
+          //       自定义文本: {x}, {y}
+          //     </>
+          //   )),
+          // ]}
         >
           <Test />
         </Wrapper>

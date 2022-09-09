@@ -1,17 +1,35 @@
-@circleRadiu: 10px;
+@circleRadiu: 14px;
 @halfNegative: calc(-@circleRadiu / 2);
 @half: calc(@circleRadiu / 2);
-@lineWidth: @half;
+@circleMax: 24px;
+@circleMin: 12px;
+
+@lineHeight: @half;
+@lineBorderWidth: 2px;
 @lineMinute: calc(@circleRadiu / 2 - 1px);
 @lineMinuteNeg: calc(-@circleRadiu / 2 + 1px);
+
 @color: #1261ff;
 
 .line {
-  height: @lineWidth;
+  height: @lineHeight;
   // background-color: blue;
   position: absolute;
   z-index: 2;
   user-select: none;
+  // display: none;
+}
+
+.circle {
+  width: @circleRadiu;
+  height: @circleRadiu;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: @circleRadiu;
+  z-index: 4;
+  position: absolute;
+  user-select: none;
+  // display: none;
 }
 
 .lineTop,
@@ -23,7 +41,7 @@
 
 .lineLeft,
 .lineRight {
-  width: @lineWidth;
+  width: @lineHeight;
   height: 100%;
   cursor: ew-resize;
 }
@@ -31,36 +49,25 @@
 .lineTop {
   top: @lineMinuteNeg;
   left: 0;
-  border-bottom: 1px solid @color;
+  border-bottom: @lineBorderWidth solid @color;
 }
 
 .lineRight {
   top: 0;
   right: @lineMinuteNeg;
-  border-left: 1px solid @color;
+  border-left: @lineBorderWidth solid @color;
 }
 
 .lineBottom {
   bottom: @lineMinuteNeg;
   left: 0;
-  border-top: 1px solid @color;
+  border-top: @lineBorderWidth solid @color;
 }
 
 .lineLeft {
   left: @lineMinuteNeg;
   top: 0;
-  border-right: 1px solid @color;
-}
-
-.circle {
-  width: @circleRadiu;
-  height: @circleRadiu;
-  background-color: #fff;
-  border: 1px solid @color;
-  border-radius: @circleRadiu;
-  z-index: 4;
-  position: absolute;
-  user-select: none;
+  border-right: @lineBorderWidth solid @color;
 }
 
 .circleTopLeft {
@@ -70,9 +77,10 @@
 }
 
 .circleTopCenter {
-  top: -1px;
+  top: 0;
   left: 50%;
-  margin-left: @halfNegative;
+  transform: translateX(-50%);
+  width: @circleMax;
 }
 
 .circleTopRight {
@@ -88,9 +96,10 @@
 }
 
 .circleBottomCenter {
-  bottom: -1px;
+  bottom: 0;
   left: 50%;
-  margin-left: @halfNegative;
+  transform: translateX(-50%);
+  width: @circleMax;
 }
 
 .circleBottomRight {
@@ -100,13 +109,27 @@
 }
 
 .circleLeftCenter {
-  right: @halfNegative;
+  right: calc(@halfNegative);
   top: 50%;
-  margin-top: @halfNegative;
+  transform: translateY(-50%);
+  height: @circleMax;
 }
 
 .circleRightCenter {
-  left: @halfNegative;
+  left: calc(@halfNegative);
   top: 50%;
-  margin-top: @halfNegative;
+  transform: translateY(-50%);
+  height: @circleMax;
+}
+
+.circleBottomCenter,
+.circleTopCenter {
+  height: @circleMin;
+  border-radius: @circleMin;
+}
+
+.circleLeftCenter,
+.circleRightCenter {
+  width: @circleMin;
+  border-radius: @circleMin;
 }

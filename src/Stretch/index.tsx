@@ -39,7 +39,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       'circleBottomLeft',
     ].forEach((direction) => {
       const line = document.querySelector(
-        `.${styles[direction]}`,
+        `.${identify} .${styles[direction]}`,
       ) as HTMLElement;
       const mc = new Manager(line);
       managers.push(mc);
@@ -116,7 +116,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
 
         // @ts-ignore
         setStyle(wrapper, delta);
-        draggle.get().popper.update();
+        draggle.get().popper?.update();
       });
 
       mc.on('panend', () => {
@@ -140,22 +140,58 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
 
   return (
     <>
-      <div className={classNames(styles.line, styles.lineTop)}>
-        <div className={classNames(styles.circle, styles.circleTopCenter)} />
+      <div className={classNames('line', styles.line, styles.lineTop)}>
+        <div
+          className={classNames(
+            'circle',
+            styles.circle,
+            styles.circleTopCenter,
+          )}
+        />
       </div>
-      <div className={classNames(styles.line, styles.lineRight)}>
-        <div className={classNames(styles.circle, styles.circleRightCenter)} />
+      <div className={classNames('line', styles.line, styles.lineRight)}>
+        <div
+          className={classNames(
+            'circle',
+            styles.circle,
+            styles.circleRightCenter,
+          )}
+        />
       </div>
-      <div className={classNames(styles.line, styles.lineBottom)}>
-        <div className={classNames(styles.circle, styles.circleBottomCenter)} />
+      <div className={classNames('line', styles.line, styles.lineBottom)}>
+        <div
+          className={classNames(
+            'circle',
+            styles.circle,
+            styles.circleBottomCenter,
+          )}
+        />
       </div>
-      <div className={classNames(styles.line, styles.lineLeft)}>
-        <div className={classNames(styles.circle, styles.circleLeftCenter)} />
+      <div className={classNames('line', styles.line, styles.lineLeft)}>
+        <div
+          className={classNames(
+            'circle',
+            styles.circle,
+            styles.circleLeftCenter,
+          )}
+        />
       </div>
-      <div className={classNames(styles.circle, styles.circleTopLeft)} />
-      <div className={classNames(styles.circle, styles.circleTopRight)} />
-      <div className={classNames(styles.circle, styles.circleBottomLeft)} />
-      <div className={classNames(styles.circle, styles.circleBottomRight)} />
+      <div
+        className={classNames('circle', styles.circle, styles.circleTopLeft)}
+      />
+      <div
+        className={classNames('circle', styles.circle, styles.circleTopRight)}
+      />
+      <div
+        className={classNames('circle', styles.circle, styles.circleBottomLeft)}
+      />
+      <div
+        className={classNames(
+          'circle',
+          styles.circle,
+          styles.circleBottomRight,
+        )}
+      />
     </>
   );
 });
