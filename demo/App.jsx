@@ -35,8 +35,10 @@ const App = () => {
         <Wrapper
           container=".app-container"
           tooltip={{ title: '9090' }}
-          defaultHeight={100}
-          defaultWidth={300}
+          defaultStyle={{
+            width: 300,
+            height: 100,
+          }}
           plugins={[
             liveLocation(),
             // liveLocation(({ x, y }) => (

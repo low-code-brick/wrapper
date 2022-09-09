@@ -1,0 +1,14 @@
+diff --git a/node_modules/draggabilly/draggabilly.js b/node_modules/draggabilly/draggabilly.js
+index 9f2dd71..3980a07 100644
+--- a/node_modules/draggabilly/draggabilly.js
++++ b/node_modules/draggabilly/draggabilly.js
+@@ -332,7 +332,8 @@ proto.animate = function() {
+   // only render and animate if dragging
+   if ( !this.isDragging ) return;
+ 
+-  this.positionDrag();
++  // this.positionDrag();
++  this.setLeftTop();
+   requestAnimationFrame( () => this.animate() );
+ };
+ 

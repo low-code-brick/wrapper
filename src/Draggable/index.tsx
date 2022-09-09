@@ -9,7 +9,7 @@ import React, {
   useCallback,
 } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
-import Draggabilly from 'draggabilly';
+import * as Draggabilly from 'draggabilly';
 import { createPopper } from '@popperjs/core';
 import classNames from 'classnames';
 import styles from './style.module.less';
