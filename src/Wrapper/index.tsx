@@ -23,8 +23,12 @@ export interface WrapperProps extends WrapperType, PlainNode {
   stretch?: boolean;
   plugins?: ((Component: React.FC, refs: Refs) => React.FC)[];
   absolute?: boolean;
-  defaultWidth?: number | string;
-  defaultHeight?: number | string;
+  defaultStyle?: {
+    width?: number | string;
+    height?: number | string;
+    left?: number | string;
+    top?: number | string;
+  };
 }
 
 let _id = 0;
@@ -57,8 +61,7 @@ const Wrapper = (props: WrapperProps) => {
     absolute = true,
     layout = {},
     plugins,
-    defaultHeight,
-    defaultWidth,
+    defaultStyle,
   } = props;
   const identify = useMemo(() => `wrapper-${_id++}`, []);
   const draggleRef = useRef<() => any>();
@@ -99,7 +102,6 @@ const Wrapper = (props: WrapperProps) => {
           )}
           style={{
             position: absolute ? 'absolute' : 'relative',
-            // TODO: 从jsonSchema中获取默认的高度宽度
             ...style,
           }}
         >
@@ -116,22 +118,13 @@ const Wrapper = (props: WrapperProps) => {
     [plugins, className, draggable, children],
   );
 
-  // 初始高度, 宽度
-  // TODO: left, top
+  // 初始高度, 宽度, 定位值
   useEffect(() => {
     const wrapper = document.querySelector(`.${identify}`) as HTMLElement;
-    if (wrapper == null) return;
-    if (defaultHeight) {
-      setStyle(wrapper, {
-        height: defaultHeight,
-      });
-    }
-    if (defaultWidth) {
-      setStyle(wrapper, {
-        width: defaultWidth,
-      });
-    }
-  }, [defaultHeight, defaultWidth]);
+    if (wrapper == null || defaultStyle == null) return;
+
+    setStyle(wrapper, defaultStyle);
+  }, []);
 
   return (
     <Provider {...props} identify={identify}>
