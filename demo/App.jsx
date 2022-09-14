@@ -35,12 +35,25 @@ const App = () => {
         >
           <Test />
         </Wrapper>
+        <div
+          style={{
+            width: 300,
+            height: 100,
+            left: 400,
+            top: 300,
+            position: 'absolute',
+            border: `1px solid green`,
+            transform: `rotateZ(30deg)`,
+          }}
+        />
         <Wrapper
           container=".app-container"
           defaultStyle={{
             width: 300,
             height: 100,
             left: 400,
+            top: 300,
+            transform: `rotateZ(30deg)`,
           }}
           plugins={[
             liveLocation(({ x, y }) => (

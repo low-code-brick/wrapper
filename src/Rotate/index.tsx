@@ -10,6 +10,7 @@ import WrapperContext from '@src/Wrapper/Context';
 import { Press, Manager } from 'hammerjs';
 import TWEEN from '@tweenjs/tween.js';
 import styles from './styles.module.less';
+import { matrix } from '@src/utils';
 import type { Refs } from '@src/Wrapper';
 
 interface RotateProps extends PlainNode {
@@ -32,7 +33,8 @@ const Rotate = forwardRef((props: RotateProps, ref) => {
       .to({ rotate: 360 }, 1000 * 3)
       .onUpdate((condition) => {
         const wrapper = wrapperRef.current as HTMLElement;
-        wrapper.style.transform = `rotate(${Math.floor(condition.rotate)}deg)`;
+        wrapper.style.transform = `rotateZ(${Math.floor(condition.rotate)}deg)`;
+        // wrapper.style.transform = matrix(Math.floor(condition.rotate));
       });
   }, []);
 
@@ -71,7 +73,6 @@ const Rotate = forwardRef((props: RotateProps, ref) => {
     // });
 
     const close = () => {
-      console.log(2);
       tween.pause();
     };
 
@@ -84,7 +85,6 @@ const Rotate = forwardRef((props: RotateProps, ref) => {
     } else {
       containerEl = document.body;
     }
-    console.log(containerEl);
     containerEl.addEventListener('mouseup', close);
 
     return () => {

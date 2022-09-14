@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, forwardRef } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import classNames from 'classnames';
-import { setStyle } from '@src/utils';
+import { setStyle, getRotate, rotatePoint } from '@src/utils';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
 import type { Delta } from '@src/utils';
@@ -28,11 +28,9 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
 
     // 拉伸事件
     const managers: InstanceType<typeof Manager>[] = [];
+    const lines = ['lineTop', 'lineRight', 'lineBottom', 'lineLeft'];
     [
-      'lineRight',
-      'lineBottom',
-      'lineLeft',
-      'lineTop',
+      ...lines,
       'circleTopLeft',
       'circleBottomRight',
       'circleTopRight',
@@ -46,20 +44,41 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       mc.add(new Pan());
 
       let rect: DOMRect;
-      let position: { left: number; top: number };
+      let position: {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      };
+      let rotate = 0;
+      let orignCenter = { x: 0, y: 0 };
+
       mc.on('panstart', () => {
         rect = wrapper.getBoundingClientRect();
         const left = Number.parseFloat(wrapper.style.left);
         const top = Number.parseFloat(wrapper.style.top);
-        position = { left, top };
+        // const { height, width } = rect; // 这里
+        const width = Number.parseFloat(wrapper.style.width);
+        const height = Number.parseFloat(wrapper.style.height);
+        position = { left, top, width, height };
+        rotate = getRotate(wrapper);
+        orignCenter = {
+          x: left + width / 2,
+          y: top + height / 2,
+        };
+        console.log('xxxx', left, top, width, height, orignCenter);
 
         draggle.get().setPopperVisible(true);
       });
       mc.on('panmove', (event: HammerInput) => {
-        const { height, width } = rect;
-        const { left, top } = position;
-        const { srcEvent } = event;
-        // console.log(event, event.direction, event.angle);
+        // const { height, width } = rect;
+        const { left, top, height, width } = position;
+        // const { srcEvent } = event;
+        // const lineQuadrant = Math.floor(((rotate + 45) % 360) / 90);
+        // console.log(rotate, lineQuadrant, lines[(1 + lineQuadrant) % 4]);
+        // console.log(event.angle);
+        // 16 下 4 右 8 上 2 左 1 原地
+        // console.log('xxxxxxxxx', event.deltaX, event.direction);
 
         let delta: Delta;
         switch (direction) {
@@ -70,6 +89,13 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             break;
           case 'lineRight':
             delta = {
+              transform: `rotateZ(30deg) translateX(${
+                event.deltaX / 2 -
+                (event.deltaX / 2) * Math.cos((30 / 180) * Math.PI)
+              }px) translateY(${(
+                (event.deltaX / 2) *
+                Math.sin((30 / 180) * Math.PI)
+              ).toFixed(2)}px)`,
               width: width + event.deltaX,
             };
             break;
