@@ -42,22 +42,3 @@ export function matrix(rotate: number) {
   const cos = Math.cos(radian);
   return `matrix(${cos}, ${sin}, -${sin}, ${cos}, 0, 0)`;
 }
-
-export function rotatePoint(point, angle, originPoint = { x: 0, y: 0 }) {
-  const cosA = Math.cos((angle * Math.PI) / 180);
-  const sinA = Math.sin((angle * Math.PI) / 180);
-  const rx =
-    originPoint.x +
-    (point.x - originPoint.x) * cosA -
-    (point.y - originPoint.y) * sinA;
-  const r9 =
-    originPoint.x +
-    50 +
-    (point.x - originPoint.x - 50) * cosA -
-    (point.y - originPoint.y) * sinA;
-  const ry =
-    originPoint.y +
-    (point.x - originPoint.x) * sinA -
-    (point.y - originPoint.y) * cosA;
-  return { x: rx, y: ry };
-}

@@ -10,7 +10,6 @@ import WrapperContext from '@src/Wrapper/Context';
 import { Press, Manager } from 'hammerjs';
 import TWEEN from '@tweenjs/tween.js';
 import styles from './styles.module.less';
-import { matrix } from '@src/utils';
 import type { Refs } from '@src/Wrapper';
 
 interface RotateProps extends PlainNode {

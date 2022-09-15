@@ -11,6 +11,25 @@ interface StretchProps extends PlainNode {
   refs: Refs;
 }
 
+// 16 下 4 右 8 上 2 左 1 原地
+const revMap: Record<number, 1 | -1> = {
+  1: 1,
+  16: 1,
+  4: 1,
+  8: -1,
+  2: -1,
+};
+
+function calcTransform(delta: number, rotate: number, rev = 1) {
+  delta = rev * delta;
+  const translateX =
+    delta / 2 - (delta / 2) * Math.cos((rotate / 180) * Math.PI);
+  const translateY = (delta / 2) * Math.sin((rotate / 180) * Math.PI);
+  return `rotateZ(${rotate}deg) translateX(${rev * translateX}px) translateY(${
+    rev * translateY
+  }px)`;
+}
+
 const Stretch = forwardRef((props: StretchProps, ref) => {
   const {
     refs: { draggle },
@@ -61,18 +80,14 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         const width = Number.parseFloat(wrapper.style.width);
         const height = Number.parseFloat(wrapper.style.height);
         position = { left, top, width, height };
-        rotate = getRotate(wrapper);
-        orignCenter = {
-          x: left + width / 2,
-          y: top + height / 2,
-        };
-        console.log('xxxx', left, top, width, height, orignCenter);
-
+        rotate = getRotate(wrapper) % 360;
         draggle.get().setPopperVisible(true);
       });
       mc.on('panmove', (event: HammerInput) => {
         // const { height, width } = rect;
         const { left, top, height, width } = position;
+        const rev = revMap[event.offsetDirection];
+        console.log(rev, Math.sin((rotate / 180) * Math.PI), '====');
         // const { srcEvent } = event;
         // const lineQuadrant = Math.floor(((rotate + 45) % 360) / 90);
         // console.log(rotate, lineQuadrant, lines[(1 + lineQuadrant) % 4]);
@@ -81,34 +96,54 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         // console.log('xxxxxxxxx', event.deltaX, event.direction);
 
         let delta: Delta;
+        // const translateX =
+        //   event.deltaX / 2 -
+        //   (event.deltaX / 2) * Math.cos((30 / 180) * Math.PI);
+        // const translateY = (event.deltaX / 2) * Math.sin((30 / 180) * Math.PI);
+        let dx: number;
+        let translateX: number;
+        let translateY: number;
         switch (direction) {
           case 'lineBottom':
+            dx = rev * event.deltaY;
+            translateX = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
+            translateY = dx / 2 - (dx / 2) * Math.cos((rotate / 180) * Math.PI);
             delta = {
+              transform: `rotateZ(${rotate}deg) translateX(${
+                -rev * translateX
+              }px) translateY(${rev * translateY}px)`,
               height: height + event.deltaY,
             };
             break;
           case 'lineRight':
             delta = {
-              transform: `rotateZ(30deg) translateX(${
-                event.deltaX / 2 -
-                (event.deltaX / 2) * Math.cos((30 / 180) * Math.PI)
-              }px) translateY(${(
-                (event.deltaX / 2) *
-                Math.sin((30 / 180) * Math.PI)
-              ).toFixed(2)}px)`,
+              // transform: `rotateZ(${rotate}deg) translateX(${translateX}px) translateY(${translateY}px)`,
+              transform: calcTransform(event.deltaX, rotate, rev),
               width: width + event.deltaX,
             };
             break;
           case 'lineLeft':
+            dx = rev * event.deltaX;
+            translateX = dx / 2 + (dx / 2) * Math.cos((rotate / 180) * Math.PI);
+            translateY = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
             delta = {
-              width: width - event.deltaX,
-              left: left + event.deltaX,
+              transform: `rotateZ(${rotate}deg) translateX(${
+                -rev * translateX
+              }px) translateY(${rev * translateY}px)`,
+              // transform: calcTransform(event.deltaX, rotate, rev),
+              width: width + event.deltaX,
             };
             break;
           case 'lineTop':
+            dx = rev * event.deltaY;
+            translateX = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
+            translateY = dx / 2 + (dx / 2) * Math.cos((rotate / 180) * Math.PI);
             delta = {
+              transform: `rotateZ(${rotate}deg) translateX(${
+                rev * translateX
+              }px) translateY(${rev * translateY}px)`,
+              // transform: calcTransform(event.deltaY, rotate, rev),
               height: height - event.deltaY,
-              top: top + event.deltaY,
             };
             break;
           case 'circleTopLeft':
@@ -121,6 +156,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             break;
           case 'circleBottomRight':
             delta = {
+              transform: `rotateZ(${rotate}deg) translateX(${event.deltaX}px) translateY(${event.deltaY}px)`,
               width: width + event.deltaX,
               height: height + event.deltaY,
             };
