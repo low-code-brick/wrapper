@@ -57,7 +57,7 @@ export function setCursor(
   rotate: number,
 ) {
   const areaDirection = Math.cos((rotate / 180) * Math.PI);
-  console.log('areaDirection', areaDirection, targetClassName, rotate);
+  // console.log('areaDirection', areaDirection, targetClassName, rotate);
   target.classList.remove(styles.ns);
   target.classList.remove(styles.ew);
   target.classList.remove(styles.nwse);
@@ -88,4 +88,100 @@ export function setCursor(
       target.classList.add(areaDirection > 0 ? styles.nesw : styles.nwse);
       break;
   }
+}
+
+export function getDistance(
+  {
+    area,
+    event,
+    userDistance,
+  }: {
+    area: ReturnType<typeof areaDirection>;
+    event: HammerInput;
+    userDistance?: number;
+  },
+  radian: number,
+  horizontal = true,
+) {
+  // if (userDistance) {
+  //   return area.x * area.y > 0
+  //     ? event.deltaX
+  //     : event.deltaY;
+  // }
+
+  const methods = [Math.cos, Math.sin];
+  if (!horizontal) {
+    methods.reverse();
+  }
+
+  return area.x * area.y > 0
+    ? event.deltaX / Math.abs(methods[0](radian))
+    : event.deltaY / Math.abs(methods[1](radian));
+}
+
+type Direction = 1 | -1;
+// 鼠标的移动方向
+const revMap: Record<number, Direction> = {
+  16: 1, // 下
+  4: 1, // 右
+  8: -1, // 上
+  2: -1, // 左
+  1: 1, // 原地
+};
+
+export function getRectChange(
+  event: HammerInput,
+  rotate: number,
+  [vOrH = true, elDirection = 1, reverse = false]: [
+    boolean,
+    Direction,
+    boolean,
+  ],
+  [x, y, t = 1]: [Direction, Direction, Direction?],
+  userDistance?: number,
+) {
+  const radian = toRadian(rotate);
+  const area = areaDirection(rotate + 45);
+  const direction = rotate > 135 && rotate < 315 ? -1 : 1;
+  const rev = revMap[event.offsetDirection];
+
+  const distance = getDistance(
+    {
+      area,
+      event,
+      userDistance,
+    },
+    radian,
+    vOrH,
+  );
+  const translate = misregistration(
+    (t * rev * distance * direction) / 2,
+    rotate,
+    elDirection,
+    reverse,
+  );
+  return {
+    distance: distance * direction,
+    translate,
+    rotate,
+    direction,
+    x: x * rev * translate.x,
+    y: y * rev * translate.y,
+  };
+}
+
+export function toTransform(translate: ReturnType<typeof getRectChange>) {
+  const { rotate, x, y } = translate;
+  return `rotateZ(${rotate}deg) translateX(${x}px) translateY(${y}px)`;
+}
+
+export function mergeTransform(
+  translateA: ReturnType<typeof getRectChange>,
+  translateB: ReturnType<typeof getRectChange>,
+) {
+  const { x: ax, y: ay, rotate } = translateA;
+  const { x: bx, y: by } = translateB;
+  return `rotateZ(${rotate}deg) translateX(${ax + bx}px) translateY(${
+    ay + by
+  }px)`;
 }
