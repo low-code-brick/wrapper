@@ -15,6 +15,8 @@ const Test = () => {
   );
 };
 
+const deg = 60;
+
 const App = () => {
   return (
     <Modal visible title="Wrapper Demo" footer={null} width="95vw">
@@ -43,7 +45,7 @@ const App = () => {
             top: 300,
             position: 'absolute',
             border: `1px solid green`,
-            transform: `rotateZ(250deg)`,
+            transform: `rotateZ(${deg}deg)`,
           }}
         />
         <Wrapper
@@ -53,7 +55,7 @@ const App = () => {
             height: 100,
             left: 400,
             top: 300,
-            transform: `rotateZ(250deg)`,
+            transform: `rotateZ(${deg}deg)`,
           }}
           plugins={[
             liveLocation(({ x, y }) => (

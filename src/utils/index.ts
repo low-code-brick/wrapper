@@ -30,7 +30,7 @@ export function getStyle(
   return wrapper.style[kebabCase(prop as string) as keyof CSSStyleDeclaration];
 }
 
-getRotate.reg = /rotateZ?\((?<rotate>\d*)deg\)/;
+getRotate.reg = /rotateZ\((?<rotate>\d*)deg\)/;
 export function getRotate(wrapper: HTMLElement) {
   const transform = getStyle(wrapper, 'transform') as string;
   return +(transform ? transform.match(getRotate.reg)?.groups?.rotate ?? 0 : 0);

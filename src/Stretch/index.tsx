@@ -1,7 +1,8 @@
 import { useContext, useEffect, useRef, forwardRef } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import classNames from 'classnames';
-import { setStyle, getRotate, rotatePoint } from '@src/utils';
+import { setStyle, getRotate } from '@src/utils';
+import { misregistration, setCursor, areaDirection, toRadian } from './core';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
 import type { Delta } from '@src/utils';
@@ -11,23 +12,35 @@ interface StretchProps extends PlainNode {
   refs: Refs;
 }
 
-// 16 下 4 右 8 上 2 左 1 原地
-const revMap: Record<number, 1 | -1> = {
-  1: 1,
-  16: 1,
-  4: 1,
-  8: -1,
-  2: -1,
+type Translate = {
+  x: number;
+  y: number;
 };
 
-function calcTransform(delta: number, rotate: number, rev = 1) {
-  delta = rev * delta;
-  const translateX =
-    delta / 2 - (delta / 2) * Math.cos((rotate / 180) * Math.PI);
-  const translateY = (delta / 2) * Math.sin((rotate / 180) * Math.PI);
-  return `rotateZ(${rotate}deg) translateX(${rev * translateX}px) translateY(${
-    rev * translateY
-  }px)`;
+// 鼠标的移动方向
+const revMap: Record<number, 1 | -1> = {
+  16: 1, // 下
+  4: 1, // 右
+  8: -1, // 上
+  2: -1, // 左
+  1: 1, // 原地
+};
+
+function getDistance(
+  {
+    area,
+    event,
+  }: { area: ReturnType<typeof areaDirection>; event: HammerInput },
+  radian: number,
+  horizontal = true,
+) {
+  const methods = [Math.cos, Math.sin];
+  if (!horizontal) {
+    methods.reverse();
+  }
+  return area.x * area.y > 0
+    ? event.deltaX / Math.abs(methods[0](radian))
+    : event.deltaY / Math.abs(methods[1](radian));
 }
 
 const Stretch = forwardRef((props: StretchProps, ref) => {
@@ -45,35 +58,43 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
     ) as HTMLElement);
     if (wrapper == null) return;
 
+    const observer = new ResizeObserver(function (entries) {
+      // entries.forEach();
+    });
+
     // 拉伸事件
     const managers: InstanceType<typeof Manager>[] = [];
     const lines = ['lineTop', 'lineRight', 'lineBottom', 'lineLeft'];
-    [
-      ...lines,
+    const circles = [
       'circleTopLeft',
       'circleBottomRight',
       'circleTopRight',
       'circleBottomLeft',
-    ].forEach((direction) => {
+    ];
+    const eles = [...lines, ...circles];
+    eles.forEach((tag) => {
       const line = document.querySelector(
-        `.${identify} .${styles[direction]}`,
+        `.${identify} .${styles[tag]}`,
       ) as HTMLElement;
       const mc = new Manager(line);
       managers.push(mc);
       mc.add(new Pan());
 
-      let rect: DOMRect;
+      // let rect: DOMRect;
       let position: {
         left: number;
         top: number;
         width: number;
         height: number;
       };
-      let rotate = 0;
-      let orignCenter = { x: 0, y: 0 };
+      let rotate = getRotate(wrapper) % 360;
+
+      // 这里没有办法直接获取到 transform 值.
+      // 通过监听 resize 来获取.
+      observer.observe(wrapper.querySelector(`.${styles[tag]}`)!);
 
       mc.on('panstart', () => {
-        rect = wrapper.getBoundingClientRect();
+        // rect = wrapper.getBoundingClientRect();
         const left = Number.parseFloat(wrapper.style.left);
         const top = Number.parseFloat(wrapper.style.top);
         // const { height, width } = rect; // 这里
@@ -82,68 +103,113 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         position = { left, top, width, height };
         rotate = getRotate(wrapper) % 360;
         draggle.get().setPopperVisible(true);
+
+        // 设置鼠标样式, TODO: 移动到外部
+        setCursor(tag, wrapper.querySelector(`.${styles[tag]}`)!, rotate);
       });
       mc.on('panmove', (event: HammerInput) => {
-        // const { height, width } = rect;
         const { left, top, height, width } = position;
+        const area = areaDirection(rotate + 45);
+        const direction = rotate > 135 && rotate < 315 ? -1 : 1;
         const rev = revMap[event.offsetDirection];
-        console.log(rev, Math.sin((rotate / 180) * Math.PI), '====');
-        // const { srcEvent } = event;
-        // const lineQuadrant = Math.floor(((rotate + 45) % 360) / 90);
-        // console.log(rotate, lineQuadrant, lines[(1 + lineQuadrant) % 4]);
-        // console.log(event.angle);
-        // 16 下 4 右 8 上 2 左 1 原地
-        // console.log('xxxxxxxxx', event.deltaX, event.direction);
+        console.log(direction, event, event.distance);
+        const radian = toRadian(rotate);
+        let distance: number;
+        const lineDistance =
+          area.x * area.y > 0
+            ? event.deltaX / Math.abs(Math.cos(radian))
+            : event.deltaY / Math.abs(Math.sin(radian));
 
         let delta: Delta;
-        // const translateX =
-        //   event.deltaX / 2 -
-        //   (event.deltaX / 2) * Math.cos((30 / 180) * Math.PI);
-        // const translateY = (event.deltaX / 2) * Math.sin((30 / 180) * Math.PI);
         let dx: number;
-        let translateX: number;
-        let translateY: number;
-        switch (direction) {
+        let translate: Translate;
+        let translateA: Translate;
+        let translateB: Translate;
+        // TODO: 数值保留1位小数
+        // TODO: 鼠标样式随旋转变化
+        // TODO: 转换为 matrix
+        switch (tag) {
           case 'lineBottom':
-            dx = rev * event.deltaY;
-            translateX = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
-            translateY = dx / 2 - (dx / 2) * Math.cos((rotate / 180) * Math.PI);
+            distance = getDistance(
+              {
+                area,
+                event,
+              },
+              radian,
+              false,
+            );
+            translate = misregistration(
+              (rev * distance * direction) / 2,
+              rotate,
+              1,
+              true,
+            );
             delta = {
               transform: `rotateZ(${rotate}deg) translateX(${
-                -rev * translateX
-              }px) translateY(${rev * translateY}px)`,
-              height: height + event.deltaY,
+                -rev * translate.x
+              }px) translateY(${rev * translate.y}px)`,
+              height: height + distance * direction,
             };
             break;
           case 'lineRight':
+            distance = getDistance(
+              {
+                area,
+                event,
+              },
+              radian,
+            );
+            translate = misregistration(
+              (rev * distance * direction) / 2,
+              rotate,
+            );
             delta = {
-              // transform: `rotateZ(${rotate}deg) translateX(${translateX}px) translateY(${translateY}px)`,
-              transform: calcTransform(event.deltaX, rotate, rev),
-              width: width + event.deltaX,
+              transform: `rotateZ(${rotate}deg) translateX(${
+                rev * translate.x
+              }px) translateY(${rev * translate.y}px)`,
+              width: width + distance * direction,
             };
             break;
           case 'lineLeft':
-            dx = rev * event.deltaX;
-            translateX = dx / 2 + (dx / 2) * Math.cos((rotate / 180) * Math.PI);
-            translateY = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
+            distance = getDistance(
+              {
+                area,
+                event,
+              },
+              radian,
+            );
+            translate = misregistration(
+              (-rev * distance * direction) / 2,
+              rotate,
+              -1,
+            );
             delta = {
               transform: `rotateZ(${rotate}deg) translateX(${
-                -rev * translateX
-              }px) translateY(${rev * translateY}px)`,
-              // transform: calcTransform(event.deltaX, rotate, rev),
-              width: width + event.deltaX,
+                -rev * translate.x
+              }px) translateY(${rev * translate.y}px)`,
+              width: width - distance * direction,
             };
             break;
           case 'lineTop':
-            dx = rev * event.deltaY;
-            translateX = (dx / 2) * Math.sin((rotate / 180) * Math.PI);
-            translateY = dx / 2 + (dx / 2) * Math.cos((rotate / 180) * Math.PI);
+            distance = getDistance(
+              {
+                area,
+                event,
+              },
+              radian,
+              false,
+            );
+            translate = misregistration(
+              (rev * distance * direction) / 2,
+              rotate,
+              -1,
+              true,
+            );
             delta = {
               transform: `rotateZ(${rotate}deg) translateX(${
-                rev * translateX
-              }px) translateY(${rev * translateY}px)`,
-              // transform: calcTransform(event.deltaY, rotate, rev),
-              height: height - event.deltaY,
+                rev * translate.x
+              }px) translateY(${rev * translate.y}px)`,
+              height: height - distance * direction,
             };
             break;
           case 'circleTopLeft':
@@ -155,8 +221,17 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             };
             break;
           case 'circleBottomRight':
+            translateA = misregistration((rev * event.deltaX) / 2, rotate);
+            translateB = misregistration(
+              (rev * event.deltaY) / 2,
+              rotate,
+              1,
+              true,
+            );
             delta = {
-              transform: `rotateZ(${rotate}deg) translateX(${event.deltaX}px) translateY(${event.deltaY}px)`,
+              transform: `rotateZ(${rotate}deg) translateX(${
+                -rev * translateB.x + rev * translateA.x
+              }px) translateY(${rev * translateB.y + rev * translateA.y}px)`,
               width: width + event.deltaX,
               height: height + event.deltaY,
             };
@@ -178,7 +253,10 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         }
 
         // TODO: 优化动画, 操作DOM不该在这里
-        // TODO: 中心点的坐标计算
+        // @ts-ignore
+        if (delta.width < 0 || delta.height < 0) {
+          return;
+        }
         // @ts-ignore
         setStyle(wrapper, delta);
         draggle.get().popper?.update();
@@ -197,6 +275,22 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         }
       });
     });
+
+    // 获取不到样式
+    // console.log(
+    //   'wrappe22222r',
+    //   wrapper,
+    //   wrapper.style.transform,
+    //   window.getComputedStyle(wrapper).transform,
+    // );
+
+    // 设置鼠标样式
+    // setCursor(
+    //   tag,
+    //   wrapper.querySelector(`.${styles[tag]}`)!,
+    //   rotate,
+    // );
+    // 监听rotate变化时间, 设置鼠标样式
 
     return () => {
       managers.forEach((o) => o.destroy());
