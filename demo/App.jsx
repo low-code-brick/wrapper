@@ -15,7 +15,7 @@ const Test = () => {
   );
 };
 
-const deg = 60;
+const deg = 200;
 
 const App = () => {
   return (

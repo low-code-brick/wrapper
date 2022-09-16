@@ -118,7 +118,7 @@ const Draggable = forwardRef((props: DraggableProps, ref) => {
     if (wrapper == null) return;
 
     const draggie = (draggieRef.current = new Draggabilly(wrapper, {
-      containment: container,
+      // containment: container,
       handle: `.${identify} .wrapper-inner`,
       ...otherProps,
     }));
