@@ -174,23 +174,23 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             changedA = getRectChange(
               event,
               rotate,
-              [false, 1, true],
-              [-1, 1],
-              180,
-              cx * -direction,
-            ); // bottom
+              [false, -1, true],
+              [1, 1],
+              0,
+              -cx,
+            ); // top
             changedB = getRectChange(
               event,
               rotate,
-              [true, 1, false],
-              [1, 1],
-              180,
-              cy * -direction,
-            ); // right
+              [true, -1, false],
+              [-1, 1, -1],
+              0,
+              -cy,
+            ); // left
             delta = {
               transform: mergeTransform(changedA, changedB),
-              width: width + changedB.distance,
-              height: height + changedA.distance,
+              width: width - changedB.distance,
+              height: height - changedA.distance,
             };
             break;
           case 'circleBottomRight':
@@ -200,14 +200,13 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               Math.cos(radian) * event.deltaX +
               Math.sin(radian) * event.deltaY
             );
-            console.log(direction, area.x * area.y, area.x, area.y);
             changedA = getRectChange(
               event,
               rotate,
               [false, 1, true],
               [-1, 1],
               0,
-              cx * -direction,
+              cx,
             ); // bottom
             changedB = getRectChange(
               event,
@@ -215,7 +214,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               [true, 1, false],
               [1, 1],
               0,
-              cy * -direction,
+              -cy,
             ); // right
             delta = {
               transform: mergeTransform(changedA, changedB),
@@ -226,7 +225,6 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
           case 'circleTopRight':
             cx =
               Math.cos(radian) * event.deltaY - Math.sin(radian) * event.deltaX;
-            // Math.sin(radian) * event.deltaX - Math.cos(radian) * event.deltaY;
             cy = -(
               Math.cos(radian) * event.deltaX +
               Math.sin(radian) * event.deltaY
@@ -237,7 +235,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               [false, -1, true],
               [1, 1],
               0,
-              cx * direction,
+              -cx,
             ); // top
             changedB = getRectChange(
               event,
@@ -245,7 +243,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               [true, 1, false],
               [1, 1],
               0,
-              cy * -direction,
+              -cy,
             ); // right
             delta = {
               transform: mergeTransform(changedA, changedB),
@@ -264,23 +262,23 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             changedA = getRectChange(
               event,
               rotate,
-              [false, -1, true],
-              [1, 1],
-              180,
-              cx * direction,
-            ); // top
+              [false, 1, true],
+              [-1, 1],
+              0,
+              cx,
+            ); // bottom
             changedB = getRectChange(
               event,
               rotate,
-              [true, 1, false],
-              [1, 1],
-              180,
-              cy * -direction,
-            ); // right
+              [true, -1, false],
+              [-1, 1, -1],
+              0,
+              -cy,
+            ); // left
             delta = {
               transform: mergeTransform(changedA, changedB),
-              width: width + changedB.distance,
-              height: height - changedA.distance,
+              width: width - changedB.distance,
+              height: height + changedA.distance,
             };
             break;
         }
@@ -291,17 +289,17 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
           console.log('out');
           return;
         }
-        // @ts-ignore
-        setStyle(wrapper, delta);
+        setStyle(wrapper, delta!);
         draggle.get().popper?.update();
       });
 
       mc.on('panend', () => {
-        // tranlate => left - top
+        // translate => position
         const transform = getComputedStyle(wrapper).transform;
         const left = Number.parseFloat(getComputedStyle(wrapper).left);
         const top = Number.parseFloat(getComputedStyle(wrapper).top);
         const match = transform.match(/matrix\((?<matrix>.+)\)$/);
+
         if (match) {
           let tx = 0;
           let ty = 0;
@@ -316,9 +314,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               ty = +matrix.at(-3)!;
               break;
           }
-          const direction = rotate > 135 && rotate < 315 ? -1 : 1;
-          const area = areaDirection(rotate + 45);
-          console.log(left, top, tx, ty);
+
           setStyle(wrapper, {
             left: left + tx,
             top: top + ty,
