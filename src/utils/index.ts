@@ -18,7 +18,7 @@ export function setStyle(wrapper: HTMLElement, delta: Delta) {
   let prop: keyof Delta;
   for (prop in delta) {
     // const value = Number.parseInt(delta[prop] as string);
-    const value = delta[prop] as number | string;
+    const value = delta[prop]!;
     wrapper.style[prop] = typeof value === 'string' ? value : `${value}px`;
   }
 }

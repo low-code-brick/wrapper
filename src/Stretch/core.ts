@@ -103,12 +103,6 @@ export function getDistance(
   radian: number,
   horizontal = true,
 ) {
-  // if (userDistance) {
-  //   return area.x * area.y > 0
-  //     ? event.deltaX
-  //     : event.deltaY;
-  // }
-
   const methods = [Math.cos, Math.sin];
   if (!horizontal) {
     methods.reverse();
@@ -145,15 +139,17 @@ export function getRectChange(
   const direction = rotate > 135 && rotate < 315 ? -1 : 1;
   const rev = revMap[event.offsetDirection];
 
-  const distance = getDistance(
-    {
-      area,
-      event,
-      userDistance,
-    },
-    radian,
-    vOrH,
-  );
+  const distance =
+    userDistance ??
+    getDistance(
+      {
+        area,
+        event,
+        userDistance,
+      },
+      radian,
+      vOrH,
+    );
   const translate = misregistration(
     (t * rev * distance * direction) / 2,
     rotate,

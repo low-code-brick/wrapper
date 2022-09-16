@@ -242,6 +242,33 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       });
 
       mc.on('panend', () => {
+        // tranlate => left - top
+        const transform = getComputedStyle(wrapper).transform;
+        const { left, top } = position;
+        const match = transform.match(/matrix\((?<matrix>.+)\)$/);
+        if (match) {
+          let tx = 0;
+          let ty = 0;
+          const matrix = match.groups!.matrix.split(/\s*,\s*/);
+          switch (matrix.length) {
+            case 6:
+              tx = +matrix.at(-2)!;
+              ty = +matrix.at(-1)!;
+              break;
+            case 16:
+              tx = +matrix.at(-4)!;
+              ty = +matrix.at(-3)!;
+              break;
+          }
+
+          setStyle(wrapper, {
+            left: left + tx,
+            top: top + ty,
+            transform: `rotateZ(${rotate}deg)`,
+          });
+        }
+
+        // TODO: 抽离出去
         draggle.get().setPopperVisible(false);
       });
 
