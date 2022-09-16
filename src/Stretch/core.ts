@@ -1,14 +1,15 @@
 import styles from './style.module.less';
 
+// 获取 resize 后的偏移量
 export function misregistration(
   distance: number,
   rotate: number,
-  direction: 1 | -1 = 1,
+  topOrBottomArea: 1 | -1 = 1,
   reverse?: boolean,
 ) {
   rotate = toRadian(rotate);
   const y = distance * Math.sin(rotate);
-  const x = distance * (1 - direction * Math.cos(rotate));
+  const x = distance * (1 - topOrBottomArea * Math.cos(rotate));
   return reverse
     ? {
         x: y,
@@ -90,27 +91,32 @@ export function setCursor(
   }
 }
 
-export function getDistance(
+// 获取每次的偏移矢量
+export function getVector(
   {
     area,
     event,
-    userDistance,
   }: {
     area: ReturnType<typeof areaDirection>;
     event: HammerInput;
-    userDistance?: number;
   },
   radian: number,
   horizontal = true,
 ) {
   const methods = [Math.cos, Math.sin];
+  const point = [event.deltaX, event.deltaY];
+
   if (!horizontal) {
-    methods.reverse();
+    point.reverse();
+  }
+
+  if (radian === 0) {
+    return area.x * area.y > 0 ? point[0] : point[1];
   }
 
   return area.x * area.y > 0
-    ? event.deltaX / Math.abs(methods[0](radian))
-    : event.deltaY / Math.abs(methods[1](radian));
+    ? point[0] / Math.abs(methods[0](radian))
+    : point[1] / Math.abs(methods[1](radian));
 }
 
 type Direction = 1 | -1;
@@ -126,43 +132,52 @@ const revMap: Record<number, Direction> = {
 export function getRectChange(
   event: HammerInput,
   rotate: number,
-  [vOrH = true, elDirection = 1, reverse = false]: [
-    boolean,
-    Direction,
-    boolean,
-  ],
-  [x, y, t = 1]: [Direction, Direction, Direction?],
+  [
+    // 是否水平方向
+    vOrH = true,
+    // 触发元素处于哪个上下半区
+    topOrBottomArea = 1,
+  ]: [boolean, Direction, boolean],
+  [
+    // 触发元素的偏移方向
+    x,
+    y,
+    // lineLeft比较特殊. -1: left.
+    t = 1,
+  ]: [Direction, Direction, Direction?],
+  offsetRotate: number = 0,
+  // 自定义步进距离
   userDistance?: number,
 ) {
   const radian = toRadian(rotate);
   const area = areaDirection(rotate + 45);
-  const direction = rotate > 135 && rotate < 315 ? -1 : 1;
-  const rev = revMap[event.offsetDirection];
+  const halfArea = rotate > 135 && rotate < 315 ? -1 : 1;
+  // 水平方向2条线, 旋转90度. 方向会反过来
+  const fixOffsetDirection = vOrH ? 1 : area.x * area.y;
 
   const distance =
     userDistance ??
-    getDistance(
+    getVector(
       {
         area,
         event,
-        userDistance,
       },
       radian,
       vOrH,
     );
   const translate = misregistration(
-    (t * rev * distance * direction) / 2,
+    (t * distance * halfArea) / 2,
     rotate,
-    elDirection,
-    reverse,
+    topOrBottomArea,
+    !vOrH,
   );
   return {
-    distance: distance * direction,
+    distance: distance * fixOffsetDirection,
     translate,
     rotate,
-    direction,
-    x: x * rev * translate.x,
-    y: y * rev * translate.y,
+    halfArea,
+    x: x * translate.x * fixOffsetDirection,
+    y: y * translate.y * fixOffsetDirection,
   };
 }
 
