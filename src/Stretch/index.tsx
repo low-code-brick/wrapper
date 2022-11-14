@@ -252,6 +252,8 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             };
             break;
           case 'circleBottomLeft':
+            // const fixOffsetDirection = vOrH ? 1 : area.x * area.y;
+            console.log('de', direction, area.x * area.y);
             cx =
               Math.cos(radian) * event.deltaY - Math.sin(radian) * event.deltaX;
             // Math.sin(radian) * event.deltaX - Math.cos(radian) * event.deltaY;
@@ -262,7 +264,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             changedA = getRectChange(
               event,
               rotate,
-              [false, 1, true],
+              [area.x * area.y < 0, 1, true],
               [-1, 1],
               0,
               cx,
@@ -270,7 +272,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             changedB = getRectChange(
               event,
               rotate,
-              [true, -1, false],
+              [area.x * area.y < 0, -1, false],
               [-1, 1, -1],
               0,
               -cy,
