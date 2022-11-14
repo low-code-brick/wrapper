@@ -10,11 +10,12 @@ export function misregistration(
   rotate = toRadian(rotate);
   const y = distance * Math.sin(rotate);
   const x = distance * (1 - topOrBottomArea * Math.cos(rotate));
+  console.log('--1', reverse, topOrBottomArea);
   return reverse
     ? {
-        x: y,
-        y: x,
-      }
+      x: y,
+      y: x,
+    }
     : { x, y };
 }
 
@@ -105,6 +106,7 @@ export function getVector(
 ) {
   const methods = [Math.cos, Math.sin];
   const point = [event.deltaX, event.deltaY];
+  console.log('--2', horizontal, area.x * area.y);
 
   if (!horizontal) {
     point.reverse();
@@ -156,7 +158,7 @@ export function getRectChange(
   const fixOffsetDirection = vOrH ? 1 : area.x * area.y;
 
   const distance =
-    userDistance ??
+    // userDistance ??
     getVector(
       {
         area,
@@ -171,6 +173,7 @@ export function getRectChange(
     topOrBottomArea,
     !vOrH,
   );
+  debugger
   return {
     distance: distance * fixOffsetDirection,
     translate,
@@ -192,7 +195,6 @@ export function mergeTransform(
 ) {
   const { x: ax, y: ay, rotate } = translateA;
   const { x: bx, y: by } = translateB;
-  return `rotateZ(${rotate}deg) translateX(${ax + bx}px) translateY(${
-    ay + by
-  }px)`;
+  return `rotateZ(${rotate}deg) translateX(${ax + bx}px) translateY(${ay + by
+    }px)`;
 }

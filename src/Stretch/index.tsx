@@ -132,163 +132,88 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         // TODO: 转换为 matrix
         switch (tag) {
           case 'lineBottom':
-            changed = getRectChange(event, rotate, [false, 1, true], [-1, 1]);
-            delta = {
-              transform: toTransform(changed),
-              height: height + changed.distance,
-            };
             break;
           case 'lineRight':
-            changed = getRectChange(event, rotate, [true, 1, false], [1, 1]);
-            delta = {
-              transform: toTransform(changed),
-              width: width + changed.distance,
-            };
             break;
           case 'lineLeft':
-            changed = getRectChange(
-              event,
-              rotate,
-              [true, -1, false],
-              [-1, 1, -1],
-            );
-            delta = {
-              transform: toTransform(changed),
-              width: width - changed.distance,
-            };
+            // console.log(Math.sin(radian), Math.cos(radian));
+            // const point = [event.deltaX, event.deltaY];
+            // const distance = point[0] / Math.cos(toRadian(rotate));
+            // const y = (-distance / 2) * Math.sin(toRadian(rotate));
+            // const x = (-distance / 2) * (1 + Math.cos(toRadian(rotate)));
+            // delta = {
+            //   transform: toTransform({
+            //     rotate,
+            //     x: -x,
+            //     y,
+            //   }),
+            //   width: width - distance,
+            // };
+
+            // changed = getRectChange(
+            //   event,
+            //   rotate,
+            //   [true, -1, false],
+            //   [-1, 1, -1],
+            // );
+            // delta = {
+            //   transform: toTransform(changed),
+            //   width: width - changed.distance,
+            // };
             break;
           case 'lineTop':
-            changed = getRectChange(event, rotate, [false, -1, true], [1, 1]);
+            // const point = [event.deltaX, event.deltaY].reverse();
+            // const distance = point[0] / Math.cos(toRadian(rotate));
+            // const y = (distance / 2) * Math.sin(toRadian(rotate));
+            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
+            // delta = {
+            //   transform: toTransform({
+            //     rotate,
+            //     x: y,
+            //     y: x,
+            //   }),
+            //   height: height - distance,
+            //   // width,
+            // };
+
+            const point = [event.deltaX, event.deltaY].reverse();
+            const distance = point[1] / (1 - Math.cos(toRadian(rotate)));
+            const y = (distance / 2) * Math.sin(toRadian(rotate));
+            const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
             delta = {
-              transform: toTransform(changed),
-              height: height - changed.distance,
+              transform: toTransform({
+                rotate,
+                x: y,
+                y: x,
+              }),
+              height: height - distance,
+              // width,
             };
+
+            // changed = getRectChange(event, rotate, [false, -1, true], [1, 1]);
+            // // delta = {
+            // //   transform: toTransform(changed),
+            // //   height: height - changed.distance,
+            // // };
             break;
           case 'circleTopLeft':
-            cx =
-              Math.sin(radian) * event.deltaX - Math.cos(radian) * event.deltaY;
-            cy = -(
-              Math.cos(radian) * event.deltaX +
-              Math.sin(radian) * event.deltaY
-            );
-            changedA = getRectChange(
-              event,
-              rotate,
-              [false, -1, true],
-              [1, 1],
-              0,
-              -cx,
-            ); // top
-            changedB = getRectChange(
-              event,
-              rotate,
-              [true, -1, false],
-              [-1, 1, -1],
-              0,
-              -cy,
-            ); // left
-            delta = {
-              transform: mergeTransform(changedA, changedB),
-              width: width - changedB.distance,
-              height: height - changedA.distance,
-            };
             break;
           case 'circleBottomRight':
-            cx =
-              Math.sin(radian) * event.deltaX - Math.cos(radian) * event.deltaY;
-            cy = -(
-              Math.cos(radian) * event.deltaX +
-              Math.sin(radian) * event.deltaY
-            );
-            changedA = getRectChange(
-              event,
-              rotate,
-              [false, 1, true],
-              [-1, 1],
-              0,
-              cx,
-            ); // bottom
-            changedB = getRectChange(
-              event,
-              rotate,
-              [true, 1, false],
-              [1, 1],
-              0,
-              -cy,
-            ); // right
-            delta = {
-              transform: mergeTransform(changedA, changedB),
-              width: width + changedB.distance,
-              height: height + changedA.distance,
-            };
             break;
           case 'circleTopRight':
-            cx =
-              Math.cos(radian) * event.deltaY - Math.sin(radian) * event.deltaX;
-            cy = -(
-              Math.cos(radian) * event.deltaX +
-              Math.sin(radian) * event.deltaY
-            );
-            changedA = getRectChange(
-              event,
-              rotate,
-              [false, -1, true],
-              [1, 1],
-              0,
-              -cx,
-            ); // top
-            changedB = getRectChange(
-              event,
-              rotate,
-              [true, 1, false],
-              [1, 1],
-              0,
-              -cy,
-            ); // right
-            delta = {
-              transform: mergeTransform(changedA, changedB),
-              width: width + changedB.distance,
-              height: height - changedA.distance,
-            };
             break;
           case 'circleBottomLeft':
-            cx =
-              Math.cos(radian) * event.deltaY - Math.sin(radian) * event.deltaX;
-            // Math.sin(radian) * event.deltaX - Math.cos(radian) * event.deltaY;
-            cy = -(
-              Math.cos(radian) * event.deltaX +
-              Math.sin(radian) * event.deltaY
-            );
-            changedA = getRectChange(
-              event,
-              rotate,
-              [false, 1, true],
-              [-1, 1],
-              0,
-              cx,
-            ); // bottom
-            changedB = getRectChange(
-              event,
-              rotate,
-              [true, -1, false],
-              [-1, 1, -1],
-              0,
-              -cy,
-            ); // left
-            delta = {
-              transform: mergeTransform(changedA, changedB),
-              width: width - changedB.distance,
-              height: height + changedA.distance,
-            };
             break;
         }
+        // @ts-ignore
+        if (delta == null) return;
 
         // TODO: 优化动画, 操作DOM不该在这里
         // @ts-ignore
-        if (delta.width < 0 || delta.height < 0) {
-          console.log('out');
-          return;
-        }
+        // if (delta.width < 0 || delta.height < 0) {
+        //   console.log('out');
+        //   return;
+        // }
         setStyle(wrapper, delta!);
         draggle.get().popper?.update();
       });
