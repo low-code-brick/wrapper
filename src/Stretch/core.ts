@@ -198,3 +198,17 @@ export function mergeTransform(
   return `rotateZ(${rotate}deg) translateX(${ax + bx}px) translateY(${ay + by
     }px)`;
 }
+
+export function to360(rotate: number) {
+  return (rotate % 360 + 360) % 360;
+}
+
+// 获取角度大致方向. 上: 0, 右: 1, 下: 2, 左: 3
+export function rotateDirection(rotate: number) {
+  return Math.floor((to360(rotate) / 45 + 1) % 8 / 2);
+}
+
+// 根据象限获取相近的移动距离. 上下(取Y): 1, 左右(取X): 0
+export function nearDistance(rotate: number) {
+  return rotateDirection(rotate) % 2;
+}

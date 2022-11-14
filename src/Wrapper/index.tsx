@@ -101,7 +101,7 @@ const Wrapper = (props: WrapperProps) => {
             {layout.inner && layout.inner(props)}
           </div>
           {draggable && <Draggable ref={draggleRef} refs={refs} />}
-          {/* {rotate && <Rotate ref={rotateRef} refs={refs} />} */}
+          {rotate && <Rotate ref={rotateRef} refs={refs} />}
           {stretch && <Stretch ref={stretchRef} refs={refs} />}
           {layout.default && layout.default(props)}
         </>,

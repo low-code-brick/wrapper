@@ -10,6 +10,8 @@ import {
   getRectChange,
   toTransform,
   mergeTransform,
+  rotateDirection,
+  nearDistance,
 } from './core';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
@@ -80,7 +82,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       'circleBottomLeft',
     ];
     const eles = [...lines, ...circles];
-    eles.forEach((tag) => {
+    eles.forEach((tag, tagIndex) => {
       const line = document.querySelector(
         `.${identify} .${styles[tag]}`,
       ) as HTMLElement;
@@ -118,8 +120,10 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       mc.on('panmove', (event: HammerInput) => {
         const { left, top, height, width } = position;
         const area = areaDirection(rotate + 45);
-        const direction = rotate > 135 && rotate < 315 ? -1 : 1;
+        // const direction = rotate > 135 && rotate < 315 ? -1 : 1;
         const radian = toRadian(rotate);
+        const direction = rotateDirection(rotate);
+        const point = [event.deltaX, event.deltaY];
 
         let delta: Delta;
         let changed: ReturnType<typeof getRectChange>;
@@ -150,6 +154,47 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             //   width: width - distance,
             // };
 
+            // const point = [event.deltaX, event.deltaY].reverse();
+            // const distance = point[0] / (1 - Math.cos(toRadian(rotate)));
+            // const y = (-distance / 2) * Math.sin(toRadian(rotate));
+            // const x = (-distance / 2) * (1 + Math.cos(toRadian(rotate)));
+            // delta = {
+            //   transform: toTransform({
+            //     rotate,
+            //     x: -x,
+            //     y,
+            //   }),
+            //   width: width - distance,
+            // };
+
+            const nd = nearDistance(rotate);
+            const distanceDirection = direction / 2 > 1 ? 1 : -1;
+            console.log(
+              nd,
+              distanceDirection,
+              // direction,
+              // tagIndex,
+              // direction === (tagIndex + 2) % 4 ? -1 : 1,
+              // tagIndex % 2,
+              // Math.floor(direction / 2) === 0 ? 1 : -1,
+            );
+            const distance =
+              (point[nd] /
+                (nd === 1
+                  ? 1 - Math.cos(toRadian(rotate))
+                  : Math.cos(toRadian(rotate)))) *
+              distanceDirection;
+            const y = (distance / 2) * Math.sin(toRadian(rotate));
+            const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
+            delta = {
+              transform: toTransform({
+                rotate,
+                x: -x,
+                y,
+              }),
+              width: width + distance,
+            };
+
             // changed = getRectChange(
             //   event,
             //   rotate,
@@ -176,19 +221,20 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
             //   // width,
             // };
 
-            const point = [event.deltaX, event.deltaY].reverse();
-            const distance = point[1] / (1 - Math.cos(toRadian(rotate)));
-            const y = (distance / 2) * Math.sin(toRadian(rotate));
-            const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            delta = {
-              transform: toTransform({
-                rotate,
-                x: y,
-                y: x,
-              }),
-              height: height - distance,
-              // width,
-            };
+            // // console.log(Math.sin(radian), Math.cos(radian));
+            // const point = [event.deltaX, event.deltaY];
+            // const distance = point[0] / (1 - Math.cos(toRadian(rotate)));
+            // const y = (distance / 2) * Math.sin(toRadian(rotate));
+            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
+            // delta = {
+            //   transform: toTransform({
+            //     rotate,
+            //     x: y,
+            //     y: x,
+            //   }),
+            //   height: height - distance,
+            //   // width,
+            // };
 
             // changed = getRectChange(event, rotate, [false, -1, true], [1, 1]);
             // // delta = {
@@ -311,7 +357,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
           )}
         />
       </div>
-      <div className={classNames('line', styles.line, styles.lineLeft)}>
+      <div className={classNames('line', styles.line, styles.lineLeft)} data->
         <div
           className={classNames(
             'circle',
