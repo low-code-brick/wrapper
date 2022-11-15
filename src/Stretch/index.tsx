@@ -128,96 +128,43 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         let direction = rotateDirection(rotate);
         const point = [event.deltaX, event.deltaY];
         const tagDirection = tagIndex % 2;
-        const nd = nearDistance(rotate + 180);
-        const mapping = -1;
+        const nd = nearDistance(rotate);
+        const mapping =
+          ([0, 1].includes(tagIndex) ? 1 : -1) * (tagDirection ? -1 : 1);
+        console.log('tagIndex', tagIndex, mapping);
+        const distanceDirection = (tagDirection ? [3] : [0, 2, 3]).includes(
+          direction,
+        )
+          ? mapping
+          : -mapping;
+        const distance =
+          (point[direction % 2 ? tagDirection : +!tagDirection] /
+            (nd === 1
+              ? 1 - Math.cos(toRadian(rotate))
+              : Math.cos(toRadian(rotate)))) *
+          distanceDirection;
+        const y = (distance / 2) * Math.sin(toRadian(rotate));
+        const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
 
         let delta: Delta;
-        let changed: ReturnType<typeof getRectChange>;
-        let changedA: ReturnType<typeof getRectChange>;
-        let changedB: ReturnType<typeof getRectChange>;
-        let cx: number;
-        let cy: number;
         // TODO: 数值保留1位小数
         // TODO: 鼠标样式随旋转变化
         // TODO: 转换为 matrix
         switch (tag) {
+          case 'lineTop':
           case 'lineBottom':
-            // const point = [event.deltaX, event.deltaY].reverse();
-            // const distance = (point[0] / Math.cos(toRadian(rotate))) * mapping;
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x =
-            //   (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: y,
-            //     y: x * mapping,
-            //   }),
-            //   height: height - distance,
-            //   // width,
-            // };
-
-            // const nd = nearDistance(rotate);
-            // const tagDirection = tagIndex % 2;
-            // const distanceDirection = direction === 1 ? -1 : 1;
-            // const distance =
-            //   (point[direction % 2 ? tagDirection : +!tagDirection] /
-            //     (nd === 1
-            //       ? 1 - Math.cos(toRadian(rotate))
-            //       : Math.cos(toRadian(rotate)))) *
-            //   distanceDirection *
-            //   mapping;
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x =
-            //   (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
-            // console.log(distance, event.angle);
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: y,
-            //     y: x * mapping,
-            //   }),
-            //   height: height - distance,
-            // };
+            delta = {
+              transform: toTransform({
+                rotate,
+                x: y,
+                y: x * mapping,
+              }),
+              height: height - distance,
+            };
 
             break;
           case 'lineRight':
-            // const nd = nearDistance(rotate);
-            // // const distanceDirection = direction / 2 > 1 ? 1 : -1;
-            // const distanceDirection = nd === tagDirection ? 1 : -1;
-            // const distance =
-            //   (point[direction % 2 ? tagDirection : +!tagDirection] /
-            //     (nd === 1
-            //       ? 1 - Math.cos(toRadian(rotate))
-            //       : Math.cos(toRadian(rotate)))) *
-            //   distanceDirection *
-            //   mapping;
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x =
-            //   (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: -x * mapping,
-            //     y,
-            //   }),
-            //   // 必须加
-            //   width: width + distance,
-            // };
-
-            const nd = nearDistance(rotate);
-            const distanceDirection = [0, 1, 2].includes(direction) ? -1 : 1;
-            console.log(distanceDirection, direction);
-            const distance =
-              (point[direction % 2 ? tagDirection : +!tagDirection] /
-                (nd === 1
-                  ? 1 - Math.cos(toRadian(rotate))
-                  : Math.cos(toRadian(rotate)))) *
-              distanceDirection *
-              mapping;
-            const y = (distance / 2) * Math.sin(toRadian(rotate));
-            const x =
-              (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
+          case 'lineLeft':
             delta = {
               transform: toTransform({
                 rotate,
@@ -228,123 +175,6 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
               width: width + distance,
             };
 
-            break;
-          case 'lineLeft':
-            // console.log(Math.sin(radian), Math.cos(radian));
-            // const point = [event.deltaX, event.deltaY];
-            // const distance = point[0] / Math.cos(toRadian(rotate));
-            // const y = (-distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (-distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: -x,
-            //     y,
-            //   }),
-            //   width: width - distance,
-            // };
-
-            // const point = [event.deltaX, event.deltaY].reverse();
-            // const distance = point[0] / (1 - Math.cos(toRadian(rotate)));
-            // const y = (-distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (-distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: -x,
-            //     y,
-            //   }),
-            //   width: width - distance,
-            // };
-
-            // const nd = nearDistance(rotate);
-            // const distanceDirection = [0, 1, 2].includes(direction) ? -1 : 1;
-            // console.log(distanceDirection, direction);
-            // const distance =
-            //   (point[direction % 2 ? tagDirection : +!tagDirection] /
-            //     (nd === 1
-            //       ? 1 - Math.cos(toRadian(rotate))
-            //       : Math.cos(toRadian(rotate)))) *
-            //   distanceDirection;
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: -x,
-            //     y,
-            //   }),
-            //   // 必须加
-            //   width: width + distance,
-            // };
-
-            // changed = getRectChange(
-            //   event,
-            //   rotate,
-            //   [true, -1, false],
-            //   [-1, 1, -1],
-            // );
-            // delta = {
-            //   transform: toTransform(changed),
-            //   width: width - changed.distance,
-            // };
-            break;
-          case 'lineTop':
-            // const point = [event.deltaX, event.deltaY].reverse();
-            // const distance = point[0] / Math.cos(toRadian(rotate));
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: y,
-            //     y: x,
-            //   }),
-            //   height: height - distance,
-            //   // width,
-            // };
-
-            // console.log(Math.sin(radian), Math.cos(radian));
-            // const point = [event.deltaX, event.deltaY].reverse();
-            // const distance = point[0] / Math.cos(toRadian(rotate));
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: y,
-            //     y: x,
-            //   }),
-            //   height: height - distance,
-            //   // width,
-            // };
-
-            // const nd = nearDistance(rotate);
-            // const tagDirection = tagIndex % 2;
-            // const distanceDirection = direction === 1 ? -1 : 1;
-            // const distance =
-            //   (point[direction % 2 ? tagDirection : +!tagDirection] /
-            //     (nd === 1
-            //       ? 1 - Math.cos(toRadian(rotate))
-            //       : Math.cos(toRadian(rotate)))) *
-            //   distanceDirection;
-            // const y = (distance / 2) * Math.sin(toRadian(rotate));
-            // const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)));
-            // console.log(distance, event.angle);
-            // delta = {
-            //   transform: toTransform({
-            //     rotate,
-            //     x: y,
-            //     y: x,
-            //   }),
-            //   height: height - distance,
-            // };
-
-            // changed = getRectChange(event, rotate, [false, -1, true], [1, 1]);
-            // // delta = {
-            // //   transform: toTransform(changed),
-            // //   height: height - changed.distance,
-            // // };
             break;
           case 'circleTopLeft':
             break;
@@ -360,10 +190,10 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
 
         // TODO: 优化动画, 操作DOM不该在这里
         // @ts-ignore
-        // if (delta.width < 0 || delta.height < 0) {
-        //   console.log('out');
-        //   return;
-        // }
+        if (delta.width < 0 || delta.height < 0) {
+          console.log('out');
+          return;
+        }
         setStyle(wrapper, delta!);
         draggle.get().popper?.update();
       });
