@@ -226,20 +226,25 @@ export function rectVectorTransfrom(
   const rotate = to360(originRotate);
   const direction = rotateDirection(rotate);
   const point = [event.deltaX, event.deltaY];
-  const deltaDistance = userDeltaDistance ?? point[direction % 2 ? tagDirection : +!tagDirection];
+  const methods = [Math.sin, Math.cos];
+  if (tagDirection) {
+    methods.reverse();
+  }
+  const deltaDistance =
+    userDeltaDistance ?? point[direction % 2 ? tagDirection : +!tagDirection];
   const nd = nearDistance(rotate);
   const mapping =
     ([0, 1].includes(tagIndex) ? 1 : -1) * (tagDirection ? -1 : 1);
   const distanceDirection = (tagDirection ? [3] : [0, 2, 3]).includes(direction)
     ? mapping
     : -mapping;
-  // console.log(tagIndex, direction % 2 ? tagDirection : +!tagDirection);
+  console.log(mapping);
   const distance =
-    (deltaDistance /
-      (nd === 1
-        ? 1 - Math.cos(toRadian(rotate))
-        : Math.cos(toRadian(rotate)))) *
-    distanceDirection;
+    (methods[0](toRadian(rotate)) * event.deltaX +
+      methods[1](toRadian(rotate)) * event.deltaY * (tagDirection ? 1 : -1)) *
+    -mapping;
+  // const distance =
+  //   (Math.sin(toRadian(rotate)) * event.deltaY + Math.cos(toRadian(rotate)) * event.deltaX) * -mapping;
   const y = (distance / 2) * Math.sin(toRadian(rotate));
   const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
 
@@ -256,7 +261,7 @@ export function rectVectorTransfrom(
     y,
     width: distance,
     height: 0,
-  }
+  };
 }
 
 export function rectVectorWithTags(
@@ -270,12 +275,15 @@ export function rectVectorWithTags(
 
   return tagIndexs
     .map((tagIndex) => rectVectorTransfrom(rotate, event, tagIndex))
-    .reduce((result, cur) => {
-      let k: keyof typeof result;
-      console.log(cur);
-      for (k in result) {
-        result[k] += cur[k] ?? 0;
-      }
-      return result;
-    }, { x: 0, y: 0, height: 0, width: 0 })
+    .reduce(
+      (result, cur) => {
+        let k: keyof typeof result;
+        console.log(cur);
+        for (k in result) {
+          result[k] += cur[k] ?? 0;
+        }
+        return result;
+      },
+      { x: 0, y: 0, height: 0, width: 0 },
+    );
 }
