@@ -2,19 +2,7 @@ import { useContext, useEffect, useRef, forwardRef } from 'react';
 import WrapperContext from '@src/Wrapper/Context';
 import classNames from 'classnames';
 import { setStyle, getRotate } from '@src/utils';
-import {
-  misregistration,
-  setCursor,
-  areaDirection,
-  toRadian,
-  getRectChange,
-  toTransform,
-  mergeTransform,
-  rotateDirection,
-  nearDistance,
-  to360,
-  rectVectorWithTags,
-} from './core';
+import { setCursor, rectVectorWithTags } from './core';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
 import type { Delta } from '@src/utils';
@@ -22,37 +10,6 @@ import type { Refs } from '@src/Wrapper';
 
 interface StretchProps extends PlainNode {
   refs: Refs;
-}
-
-type Translate = {
-  x: number;
-  y: number;
-};
-
-// 鼠标的移动方向
-const revMap: Record<number, 1 | -1> = {
-  16: 1, // 下
-  4: 1, // 右
-  8: -1, // 上
-  2: -1, // 左
-  1: 1, // 原地
-};
-
-function getDistance(
-  {
-    area,
-    event,
-  }: { area: ReturnType<typeof areaDirection>; event: HammerInput },
-  radian: number,
-  horizontal = true,
-) {
-  const methods = [Math.cos, Math.sin];
-  if (!horizontal) {
-    methods.reverse();
-  }
-  return area.x * area.y > 0
-    ? event.deltaX / Math.abs(methods[0](radian))
-    : event.deltaY / Math.abs(methods[1](radian));
 }
 
 const Stretch = forwardRef((props: StretchProps, ref) => {
@@ -107,10 +64,8 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
       observer.observe(wrapper.querySelector(`.${styles[tag]}`)!);
 
       mc.on('panstart', () => {
-        // rect = wrapper.getBoundingClientRect();
         const left = Number.parseFloat(getComputedStyle(wrapper).left);
         const top = Number.parseFloat(getComputedStyle(wrapper).top);
-        // const { height, width } = rect; // 这里
         const width = Number.parseFloat(wrapper.style.width);
         const height = Number.parseFloat(wrapper.style.height);
         position = { left, top, width, height };
