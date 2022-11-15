@@ -7,32 +7,39 @@ export function createSVGElement(name: string, classNames: string[] = []) {
 }
 
 export type Delta = {
-  height?: number | string;
-  width?: number | string;
-  left?: number | string;
-  top?: number | string;
-  transform?: string;
+  x: number;
+  y: number;
+  height: number;
+  width: number;
 };
 
-export function setStyle(wrapper: HTMLElement, delta: Delta) {
-  let prop: keyof Delta;
-  for (prop in delta) {
-    // const value = Number.parseInt(delta[prop] as string);
-    const value = delta[prop]!;
-    wrapper.style[prop] = typeof value === 'string' ? value : `${value}px`;
+export function setStyle(
+  element: HTMLElement,
+  style: {
+    left?: number;
+    top?: number;
+    width?: number;
+    height?: number;
+    transform?: string;
+  },
+) {
+  let prop: keyof typeof style;
+  for (prop in style) {
+    const value = style[prop]!;
+    element.style[prop] = typeof value === 'string' ? value : `${value}px`;
   }
 }
 
 export function getStyle(
-  wrapper: HTMLElement,
-  prop: keyof CSSStyleDeclaration | string,
+  element: HTMLElement,
+  prop: keyof CSSStyleDeclaration,
 ) {
-  return wrapper.style[kebabCase(prop as string) as keyof CSSStyleDeclaration];
+  return element.style[kebabCase(prop as string) as keyof CSSStyleDeclaration];
 }
 
 getRotate.reg = /rotateZ\((?<rotate>\d*)deg\)/;
-export function getRotate(wrapper: HTMLElement) {
-  const transform = getStyle(wrapper, 'transform') as string;
+export function getRotate(element: HTMLElement) {
+  const transform = getStyle(element, 'transform') as string;
   return +(transform ? transform.match(getRotate.reg)?.groups?.rotate ?? 0 : 0);
 }
 

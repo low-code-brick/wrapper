@@ -13,6 +13,7 @@ import {
   rotateDirection,
   nearDistance,
   to360,
+  rectVectorWithTags,
 } from './core';
 import { Pan, Manager } from 'hammerjs';
 import styles from './style.module.less';
@@ -78,12 +79,13 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
     const lines = ['lineTop', 'lineRight', 'lineBottom', 'lineLeft'];
     const circles = [
       'circleTopLeft',
-      'circleBottomRight',
       'circleTopRight',
+      'circleBottomRight',
       'circleBottomLeft',
     ];
     const eles = [...lines, ...circles];
     eles.forEach((tag, tagIndex) => {
+      tagIndex = tagIndex % 4;
       const line = document.querySelector(
         `.${identify} .${styles[tag]}`,
       ) as HTMLElement;
@@ -119,32 +121,7 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         setCursor(tag, wrapper.querySelector(`.${styles[tag]}`)!, rotate);
       });
       mc.on('panmove', (event: HammerInput) => {
-        const { left, top, height, width } = position;
-        // const orginRotate = rotate;
-        // rotate = to360(rotate + 180);
-        const area = areaDirection(rotate + 45);
-        // const direction = rotate > 135 && rotate < 315 ? -1 : 1;
-        const radian = toRadian(rotate);
-        let direction = rotateDirection(rotate);
-        const point = [event.deltaX, event.deltaY];
-        const tagDirection = tagIndex % 2;
-        const nd = nearDistance(rotate);
-        const mapping =
-          ([0, 1].includes(tagIndex) ? 1 : -1) * (tagDirection ? -1 : 1);
-        console.log('tagIndex', tagIndex, mapping);
-        const distanceDirection = (tagDirection ? [3] : [0, 2, 3]).includes(
-          direction,
-        )
-          ? mapping
-          : -mapping;
-        const distance =
-          (point[direction % 2 ? tagDirection : +!tagDirection] /
-            (nd === 1
-              ? 1 - Math.cos(toRadian(rotate))
-              : Math.cos(toRadian(rotate)))) *
-          distanceDirection;
-        const y = (distance / 2) * Math.sin(toRadian(rotate));
-        const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
+        const { height, width } = position;
 
         let delta: Delta;
         // TODO: 数值保留1位小数
@@ -153,48 +130,37 @@ const Stretch = forwardRef((props: StretchProps, ref) => {
         switch (tag) {
           case 'lineTop':
           case 'lineBottom':
-            delta = {
-              transform: toTransform({
-                rotate,
-                x: y,
-                y: x * mapping,
-              }),
-              height: height - distance,
-            };
-
-            break;
           case 'lineRight':
           case 'lineLeft':
-            delta = {
-              transform: toTransform({
-                rotate,
-                x: -x * mapping,
-                y,
-              }),
-              // 必须加
-              width: width + distance,
-            };
-
+            delta = rectVectorWithTags(rotate, event, tagIndex);
             break;
           case 'circleTopLeft':
+            delta = rectVectorWithTags(rotate, event, [0, 3]);
             break;
           case 'circleBottomRight':
+            delta = rectVectorWithTags(rotate, event, [1, 2]);
             break;
           case 'circleTopRight':
+            delta = rectVectorWithTags(rotate, event, [0, 1]);
             break;
           case 'circleBottomLeft':
+            delta = rectVectorWithTags(rotate, event, [2, 3]);
             break;
         }
         // @ts-ignore
         if (delta == null) return;
 
+        const style = {
+          width: width + delta.width,
+          height: height + delta.height,
+          transform: `rotateZ(${rotate}deg) translateX(${delta.x}px) translateY(${delta.y}px)`,
+        };
         // TODO: 优化动画, 操作DOM不该在这里
-        // @ts-ignore
-        if (delta.width < 0 || delta.height < 0) {
+        if (style.width < 0 || style.height < 0) {
           console.log('out');
           return;
         }
-        setStyle(wrapper, delta!);
+        setStyle(wrapper, style);
         draggle.get().popper?.update();
       });
 

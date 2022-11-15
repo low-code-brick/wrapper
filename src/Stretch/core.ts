@@ -10,7 +10,6 @@ export function misregistration(
   rotate = toRadian(rotate);
   const y = distance * Math.sin(rotate);
   const x = distance * (1 - topOrBottomArea * Math.cos(rotate));
-  console.log('--1', reverse, topOrBottomArea);
   return reverse
     ? {
       x: y,
@@ -173,7 +172,7 @@ export function getRectChange(
     topOrBottomArea,
     !vOrH,
   );
-  debugger
+  debugger;
   return {
     distance: distance * fixOffsetDirection,
     translate,
@@ -200,15 +199,83 @@ export function mergeTransform(
 }
 
 export function to360(rotate: number) {
-  return (rotate % 360 + 360) % 360;
+  return ((rotate % 360) + 360) % 360;
 }
 
 // 获取角度大致方向. 上: 0, 右: 1, 下: 2, 左: 3
 export function rotateDirection(rotate: number) {
-  return Math.floor((to360(rotate) / 45 + 1) % 8 / 2);
+  return Math.floor(((to360(rotate) / 45 + 1) % 8) / 2);
 }
 
 // 根据象限获取相近的移动距离. 上下(取Y): 1, 左右(取X): 0
 export function nearDistance(rotate: number) {
   return rotateDirection(rotate) % 2;
+}
+
+export function rectVectorTransfrom(
+  originRotate: number,
+  event: HammerInput,
+  /**
+   * 触发元素所处的位置
+   * 上有下左: 0123.
+   */
+  tagIndex: number,
+  userDeltaDistance?: number,
+) {
+  const tagDirection = tagIndex % 2;
+  const rotate = to360(originRotate);
+  const direction = rotateDirection(rotate);
+  const point = [event.deltaX, event.deltaY];
+  const deltaDistance = userDeltaDistance ?? point[direction % 2 ? tagDirection : +!tagDirection];
+  const nd = nearDistance(rotate);
+  const mapping =
+    ([0, 1].includes(tagIndex) ? 1 : -1) * (tagDirection ? -1 : 1);
+  const distanceDirection = (tagDirection ? [3] : [0, 2, 3]).includes(direction)
+    ? mapping
+    : -mapping;
+  // console.log(tagIndex, direction % 2 ? tagDirection : +!tagDirection);
+  const distance =
+    (deltaDistance /
+      (nd === 1
+        ? 1 - Math.cos(toRadian(rotate))
+        : Math.cos(toRadian(rotate)))) *
+    distanceDirection;
+  const y = (distance / 2) * Math.sin(toRadian(rotate));
+  const x = (distance / 2) * (1 + Math.cos(toRadian(rotate)) * mapping);
+
+  if (tagDirection === 0) {
+    return {
+      x: y,
+      y: x * mapping,
+      height: -distance,
+      width: 0,
+    };
+  }
+  return {
+    x: -x * mapping,
+    y,
+    width: distance,
+    height: 0,
+  }
+}
+
+export function rectVectorWithTags(
+  rotate: number,
+  event: HammerInput,
+  tagIndexs: number | number[],
+) {
+  if (typeof tagIndexs === 'number') {
+    return rectVectorTransfrom(rotate, event, tagIndexs);
+  }
+
+  return tagIndexs
+    .map((tagIndex) => rectVectorTransfrom(rotate, event, tagIndex))
+    .reduce((result, cur) => {
+      let k: keyof typeof result;
+      console.log(cur);
+      for (k in result) {
+        result[k] += cur[k] ?? 0;
+      }
+      return result;
+    }, { x: 0, y: 0, height: 0, width: 0 })
 }
